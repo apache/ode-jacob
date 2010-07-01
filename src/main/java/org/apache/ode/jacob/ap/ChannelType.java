@@ -16,14 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ode.jacob;
-
-import org.apache.ode.jacob.ap.ChannelType;
+package org.apache.ode.jacob.ap;
 
 /**
- * Generic return-value channel type.
+ * Annotation used to indicate that an interface is a JACOB channel interface.
+ * @author Maciej Szefler <mszefler at gmail dot com>
  */
-@ChannelType
-public interface Val {
-  public void val(Object retVal);
+public @interface ChannelType {
+
 }
