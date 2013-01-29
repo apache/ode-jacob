@@ -388,7 +388,7 @@ public final class JacobVPU {
         public void run() {
             assert _methodBody != null;
             assert _method != null;
-            assert _method.getDeclaringClass().isAssignableFrom(_methodBody.getClass());
+            // assert _method.getDeclaringClass().isAssignableFrom(_methodBody.getClass());
 
             LOG.trace(">> [{}] : {}", _cycle, _source);
 
