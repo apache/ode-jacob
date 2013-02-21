@@ -29,6 +29,7 @@
   <properties>
     <slf4j.version>1.7.2</slf4j.version>
     <junit.version>4.11</junit.version>
+    <jackson.version>2.1.3</jackson.version>
   </properties>
 
   <dependencyManagement>
@@ -48,6 +49,11 @@
         <artifactId>junit</artifactId>
 	<version>${junit.version}</version>
       </dependency>
+      <dependency>
+	      <groupId>com.fasterxml.jackson.core</groupId>
+	      <artifactId>jackson-databind</artifactId>
+	      <version>${jackson.version}</version>
+	  </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -55,6 +61,10 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
     </dependency>
 
     <!-- test -->

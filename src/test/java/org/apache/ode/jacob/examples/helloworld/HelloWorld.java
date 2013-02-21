@@ -24,8 +24,12 @@ import org.apache.ode.jacob.ReceiveProcess;
 import org.apache.ode.jacob.Synch;
 import org.apache.ode.jacob.Val;
 import org.apache.ode.jacob.examples.sequence.Sequence;
-import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
+import org.apache.ode.jacob.soup.jackson.JacksonExecutionQueueImpl;
 import org.apache.ode.jacob.vpu.JacobVPU;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Simple Hello World example to showcase different
@@ -37,20 +41,22 @@ import org.apache.ode.jacob.vpu.JacobVPU;
 @SuppressWarnings("serial")
 public class HelloWorld extends JacobRunnable {
 
-    public interface Callback<T, R extends Channel> extends Channel {
+    public static interface Callback<T, R extends Channel> extends Channel {
         public void invoke(T value, R callback);
     }
 
     static class ReliablePrinterProcess extends JacobRunnable {
-        private Callback<String, Synch> _in;
-        public ReliablePrinterProcess(Callback<String, Synch> in) {
-            _in = in;
+        private Callback<String, Synch> in;
+
+        @JsonCreator
+        public ReliablePrinterProcess(@JsonProperty("in") Callback<String, Synch> in) {
+            this.in = in;
         }
 
         public void run() {
             object(true, new ReceiveProcess() {
                 private static final long serialVersionUID = 1L;
-            }.setChannel(_in).setReceiver(new Callback<String, Synch>(){
+            }.setChannel(in).setReceiver(new Callback<String, Synch>(){
                 @Override
                 public void invoke(String value, Synch callback) {
                     System.out.println(value);
@@ -63,8 +69,9 @@ public class HelloWorld extends JacobRunnable {
     static class ReliableStringEmitterProcess extends JacobRunnable {
         private String str;
         private Callback<String, Synch> to;
-        
-        public ReliableStringEmitterProcess(String str, Callback<String, Synch> to) {
+
+        @JsonCreator
+        public ReliableStringEmitterProcess(@JsonProperty("str")String str, @JsonProperty("to") Callback<String, Synch> to) {
             this.str = str;
             this.to = to;
         }
@@ -85,26 +92,30 @@ public class HelloWorld extends JacobRunnable {
     
     static class PrinterProcess extends JacobRunnable {
         private Val _in;
-        public PrinterProcess(Val in) {
+
+        @JsonCreator
+        public PrinterProcess(@JsonProperty("in") Val in) {
             _in = in;
         }
 
         public void run() {
-            object(true, new ReceiveProcess() {
-                private static final long serialVersionUID = 1L;
-            }.setChannel(_in).setReceiver(new Val(){
-                public void val(Object o) {
-                    System.out.println(o);
-                }
-            }));
+            object(true, new PrinterProcessReceiveProcess().setChannel(_in).setReceiver(new PrinterProcessVal()));
+        }
+
+        static class PrinterProcessReceiveProcess extends ReceiveProcess {}
+        static class PrinterProcessVal implements Val {
+            public void val(Object o) {
+                System.out.println(o);
+            }
         }
     }
 
     static class StringEmitterProcess extends JacobRunnable {
         private String str;
         private Val to;
-        
-        public StringEmitterProcess(String str, Val to) {
+
+        @JsonCreator
+        public StringEmitterProcess(@JsonProperty("str") String str, @JsonProperty("to") Val to) {
             this.str = str;
             this.to = to;
         }
@@ -117,20 +128,29 @@ public class HelloWorld extends JacobRunnable {
     static class ForwarderProcess extends JacobRunnable {
         private Val in;
         private Val out;
-        public ForwarderProcess(Val in, Val out) {
+
+        @JsonCreator
+        public ForwarderProcess(@JsonProperty("in") Val in, @JsonProperty("out") Val out) {
             this.in = in;
             this.out = out;
         }
 
         public void run() {
-            object(true, new ReceiveProcess() {
-                private static final long serialVersionUID = 1L;
-            }.setChannel(in).setReceiver(new Val(){
-                public void val(Object o) {
-                    out.val(o);
-                }
-            }));
+             object(true, new ForwarderProcessReceiveProcess().setChannel(in).setReceiver(new ForwarderProcessVal(out)));
         }
+
+        static class ForwarderProcessReceiveProcess extends ReceiveProcess {}
+        static class ForwarderProcessVal implements Val {
+            private Val out;
+            @JsonCreator
+            public ForwarderProcessVal(@JsonProperty("out")Val out) {
+                this.out = out;
+            }
+            public void val(Object o) {
+                out.val(o);
+            }
+        }
+
     }
 
     private void simpleHelloWorld() {
@@ -153,6 +173,7 @@ public class HelloWorld extends JacobRunnable {
         // (new(callback).!out(hello).?callback) | (new(callback).!out(world).?callback)
         
         // new(rout)
+        @SuppressWarnings("unchecked")
         Callback<String, Synch> rout = newChannel(Callback.class, "reliableHelloWorld-rout");
         // *(?rout(str).!sysout(str))
         instance(new ReliablePrinterProcess(rout));
@@ -170,21 +191,49 @@ public class HelloWorld extends JacobRunnable {
         // new(out)
         final Val out = newChannel(Val.class, "sequencedHelloWorld-out");
 
+        // *(?out(str).!sysout(str))
+        instance(new PrinterProcess(out));
+
         final String[] greeting = {"Hello", "World"};
-        instance(new Sequence(greeting.length, null) {
-            @Override
-            protected JacobRunnable doStep(final int step, final Synch done) {
-                return new JacobRunnable() {
-                    @Override
-                    public void run() {
-                        instance(new StringEmitterProcess(greeting[step], out));
-                        done.ret();
-                    }
-                };
-            }
-        });
+
+        instance(new HWSequence(greeting, out, null));
+    }
+
+    static class HWSequence extends Sequence {
+
+		private final String[] greetings;
+		private final Val out;
+
+		@JsonCreator
+		public HWSequence(@JsonProperty("greetings") String[] greetings, @JsonProperty("out") Val out, @JsonProperty("done") Synch done) {
+			super(greetings.length, done);
+			this.greetings = greetings;
+			this.out = out;
+		}
+
+		@Override
+		protected JacobRunnable doStep(int step, Synch done) {
+			return new SequenceItemEmitter(greetings[step], done);
+        }
+
+		class SequenceItemEmitter extends JacobRunnable {
+			private final String string;
+			private final Synch done;
+
+			public SequenceItemEmitter(String string, Synch done) {
+				this.string = string;
+				this.done = done;
+			}
+
+			@Override
+			public void run() {
+				instance(new StringEmitterProcess(string, out));
+	            done.ret();
+			}
+	    }
     }
     
+
     @Override
     public void run() {
         simpleHelloWorld();
@@ -192,15 +241,31 @@ public class HelloWorld extends JacobRunnable {
         sequencedHelloWorld();
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
+        long start = System.currentTimeMillis();
+        ObjectMapper mapper = JacksonExecutionQueueImpl.configureMapper();
         JacobVPU vpu = new JacobVPU();
-        vpu.setContext(new ExecutionQueueImpl(null));
+        JacksonExecutionQueueImpl queue = new JacksonExecutionQueueImpl();
+        vpu.setContext(queue);
         vpu.inject(new HelloWorld());
         while (vpu.execute()) {
+            queue = loadAndRestoreQueue(mapper, queue);
             System.out.println(vpu.isComplete() ? "<0>" : ".");
             //vpu.dumpState();
         }
         vpu.dumpState();
+        System.out.println("Runtime in ms: " + (System.currentTimeMillis() - start));
+    }
+
+    public static JacksonExecutionQueueImpl loadAndRestoreQueue(ObjectMapper mapper, JacksonExecutionQueueImpl in) throws Exception {
+        String json = mapper.writeValueAsString(in);
+        // System.out.println(json);
+        JacksonExecutionQueueImpl q2 = mapper.readValue(json, JacksonExecutionQueueImpl.class);
+        //String json2 = mapper.writeValueAsString(q2);
+
+        //    	System.out.println("----");
+        //    	System.out.println(json2);
+        return q2;
     }
 
 }

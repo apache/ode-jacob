@@ -80,21 +80,21 @@ public class ExecutionQueueImpl implements ExecutionQueue {
      * forward progress; this scenario would occur if a maximum processign
      * time-per-instance policy were in effect.
      */
-    private Set<Continuation> _reactions = new HashSet<Continuation>();
+    protected Set<Continuation> _reactions = new HashSet<Continuation>();
 
-    private Map<Integer, ChannelFrame> _channels = new HashMap<Integer, ChannelFrame>();
+    protected Map<Integer, ChannelFrame> _channels = new HashMap<Integer, ChannelFrame>();
 
     /**
      * The "expected" cycle counter, use to detect database serialization
      * issues.
      */
-    private int _currentCycle;
+    protected int _currentCycle;
 
-    private int _objIdCounter;
+    protected int _objIdCounter;
 
     private ReplacementMap _replacementMap;
 
-    private Serializable _gdata;
+    protected Serializable _gdata;
 
     private Map<Object, LinkedList<IndexedObject>> _index = new HashMap<Object, LinkedList<IndexedObject>>();
 
@@ -442,7 +442,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         return _gdata;
     }
 
-    private static class ChannelFrame implements Externalizable {
+    protected static class ChannelFrame implements Externalizable {
         Class<?> type;
 
         int id;
@@ -534,7 +534,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
     }
 
     @SuppressWarnings("serial")
-    private static class CommGroupFrame implements Serializable {
+    protected static class CommGroupFrame implements Serializable {
         boolean replicated;
         public Set<CommFrame> commFrames = new HashSet<CommFrame>();
 
@@ -543,7 +543,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         }
     }
 
-    private static class CommFrame implements Externalizable {
+    protected static class CommFrame implements Externalizable {
         CommGroupFrame commGroupFrame;
         ChannelFrame channelFrame;
 
@@ -566,7 +566,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         }
     }
 
-    private static class ObjectFrame extends CommFrame implements Externalizable {
+    protected static class ObjectFrame extends CommFrame implements Externalizable {
         private static final long serialVersionUID = -7212430608484116919L;
 
         ChannelListener _continuation;
@@ -743,7 +743,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         }
     }
 
-    private static final class ChannelRef implements Externalizable {
+    protected static final class ChannelRef implements Externalizable {
         private Class<?> _type;
 
         private Integer _id;
