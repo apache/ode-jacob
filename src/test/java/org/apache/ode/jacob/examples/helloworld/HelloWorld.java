@@ -57,7 +57,6 @@ public class HelloWorld extends JacobRunnable {
             object(true, new ReceiveProcess() {
                 private static final long serialVersionUID = 1L;
             }.setChannel(in).setReceiver(new Callback<String, Synch>(){
-                @Override
                 public void invoke(String value, Synch callback) {
                     System.out.println(value);
                     callback.ret();
@@ -81,7 +80,6 @@ public class HelloWorld extends JacobRunnable {
             object(new ReceiveProcess() {
                 private static final long serialVersionUID = 1L;
             }.setChannel(callback).setReceiver(new Synch() {
-                @Override
                 public void ret() {
                     System.out.println(str + " ACKed");
                 }

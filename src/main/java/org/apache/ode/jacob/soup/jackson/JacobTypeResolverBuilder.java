@@ -111,7 +111,6 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
             delegate = new ClassNameIdResolver(baseType, typeFactory);
         }
 
-        @Override
         public String idFromValue(Object value) {
             if (value instanceof ChannelProxy) {
                 return "<<channelproxy>>";
@@ -119,12 +118,10 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
             return delegate.idFromValue(value);
         }
 
-        @Override
         public String idFromValueAndType(Object value, Class<?> suggestedType) {
             return delegate.idFromValueAndType(value, suggestedType);
         }
 
-        @Override
         public JavaType typeFromId(String id) {
             if ("<<channelproxy>>".equals(id)) {
                 return null; // force jackson to use default impl
@@ -132,7 +129,6 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
             return delegate.typeFromId(id);
         }
 
-        @Override
         public Id getMechanism() {
             return Id.CUSTOM;
         }
