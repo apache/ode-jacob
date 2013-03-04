@@ -79,7 +79,6 @@ public class ProxyConstructorTimingTest extends TestCase {
 
     public void manualTestProxyTiming() throws Exception {
         timedRepeatedExecution("direct invocation", new TestExecution() {
-            @Override
             public void execute() throws Exception {
                 // Create new instance every time
                 new GreeterImpl2().hello("World");
@@ -87,7 +86,6 @@ public class ProxyConstructorTimingTest extends TestCase {
         });
 
         timedRepeatedExecution("newProxyInstance", new TestExecution() {
-            @Override
             public void execute() throws Exception {
                 Greeter gp = (Greeter) Proxy.newProxyInstance(Greeter.class.getClassLoader(),
                     new Class<?>[] {Greeter.class}, new GreeterInvocationHandler(new GreeterImpl2()));
@@ -97,7 +95,6 @@ public class ProxyConstructorTimingTest extends TestCase {
 
         final ProxyConstructor<Greeter> helper = new ProxyConstructor<Greeter>(Greeter.class);
         timedRepeatedExecution("ProxyConstructor", new TestExecution() {
-            @Override
             public void execute() throws Exception {
                 Greeter gp = (Greeter) helper.newInstance(new GreeterInvocationHandler(new GreeterImpl2()));
                 gp.hello("World");

@@ -109,7 +109,6 @@ public class SynchPrinter {
                 run();
             }
 
-            @Override
             public void run() {
                 if (message != null) {
                     object(receive(printer.print(message), new Synch() {

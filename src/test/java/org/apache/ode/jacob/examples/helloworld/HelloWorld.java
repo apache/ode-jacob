@@ -59,7 +59,6 @@ public class HelloWorld extends JacobRunnable {
 
         static class ReliablePrinterReceiveProcess extends ReceiveProcess {}
         static class ReliablePrinterCallback implements Callback<String, Synch> {
-            @Override
             public void invoke(String value, Synch callback) {
                 System.out.println(value);
                 callback.ret();
@@ -82,7 +81,6 @@ public class HelloWorld extends JacobRunnable {
             object(new ReceiveProcess() {
                 private static final long serialVersionUID = 1L;
             }.setChannel(callback).setReceiver(new Synch() {
-                @Override
                 public void ret() {
                     System.out.println(str + " ACKed");
                 }
@@ -251,7 +249,7 @@ public class HelloWorld extends JacobRunnable {
         vpu.inject(new HelloWorld());
         while (vpu.execute()) {
             queue = loadAndRestoreQueue(mapper, queue);
-            //vpu.setContext(queue);
+            vpu.setContext(queue);
             System.out.println(vpu.isComplete() ? "<0>" : ".");
             //vpu.dumpState();
         }

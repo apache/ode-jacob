@@ -461,7 +461,6 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         public String description;
 
         // Used for deserialization
-        @SuppressWarnings("unused")
         public ChannelFrame() {
         }
 
@@ -572,7 +571,6 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         ChannelListener _continuation;
 
         // Used for deserialization
-        @SuppressWarnings("unused")
         public ObjectFrame() {
         }
 
@@ -754,7 +752,6 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         }
 
         // Used for deserialization
-        @SuppressWarnings("unused")
         public ChannelRef() {
         }
 
