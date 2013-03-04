@@ -54,15 +54,16 @@ public class HelloWorld extends JacobRunnable {
         }
 
         public void run() {
-            object(true, new ReceiveProcess() {
-                private static final long serialVersionUID = 1L;
-            }.setChannel(in).setReceiver(new Callback<String, Synch>(){
-                @Override
-                public void invoke(String value, Synch callback) {
-                    System.out.println(value);
-                    callback.ret();
-                }
-            }));
+            object(true, new ReliablePrinterReceiveProcess().setChannel(in).setReceiver(new ReliablePrinterCallback()));
+        }
+
+        static class ReliablePrinterReceiveProcess extends ReceiveProcess {}
+        static class ReliablePrinterCallback implements Callback<String, Synch> {
+            @Override
+            public void invoke(String value, Synch callback) {
+                System.out.println(value);
+                callback.ret();
+            }
         }
     }
 
@@ -250,6 +251,7 @@ public class HelloWorld extends JacobRunnable {
         vpu.inject(new HelloWorld());
         while (vpu.execute()) {
             queue = loadAndRestoreQueue(mapper, queue);
+            //vpu.setContext(queue);
             System.out.println(vpu.isComplete() ? "<0>" : ".");
             //vpu.dumpState();
         }
