@@ -537,6 +537,9 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         boolean replicated;
         public Set<CommFrame> commFrames = new HashSet<CommFrame>();
 
+        // default constructor for deserialization
+        public CommGroupFrame() {}
+
         public CommGroupFrame(boolean replicated) {
             this.replicated = replicated;
         }

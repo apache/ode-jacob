@@ -67,9 +67,9 @@ public class ChannelProxyDeserializer extends StdDeserializer<Channel> {
 
         
         try {
-            CommChannel channel = new CommChannel(ctxt.findClass(type));
-            channel.setId(id);
-            return (Channel)ChannelFactory.createChannel(channel, channel.getType());
+            CommChannel cchannel = new CommChannel(ctxt.findClass(type));
+            cchannel.setId(id);
+            return (Channel)ChannelFactory.createChannel(cchannel, cchannel.getType());
 
         } catch (ClassNotFoundException e) {
             throw ctxt.instantiationException(Channel.class, e);

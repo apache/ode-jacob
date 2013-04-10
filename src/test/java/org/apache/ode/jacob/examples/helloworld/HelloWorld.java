@@ -78,17 +78,26 @@ public class HelloWorld extends JacobRunnable {
 
         public void run() {
             Synch callback = newChannel(Synch.class, "callback channel to ACK " + str);
-            object(new ReceiveProcess() {
-                private static final long serialVersionUID = 1L;
-            }.setChannel(callback).setReceiver(new Synch() {
-                public void ret() {
-                    System.out.println(str + " ACKed");
-                }
-            }));
+            object(new ReliableStringEmitterReceiveProcess().setChannel(callback).setReceiver(new ReliableStringEmitterSynch(str)));
             to.invoke(str, callback);
         }
+
+        static class ReliableStringEmitterReceiveProcess extends ReceiveProcess {}
+        static class ReliableStringEmitterSynch implements Synch {
+            private String str;
+
+            @JsonCreator
+            public ReliableStringEmitterSynch(@JsonProperty("str") String str) {
+                this.str = str;
+            }
+
+            @Override
+            public void ret() {
+                System.out.println(str + " ACKed");
+            }
+        }
     }
-    
+
     static class PrinterProcess extends JacobRunnable {
         private Val _in;
 
@@ -212,16 +221,19 @@ public class HelloWorld extends JacobRunnable {
 
 		@Override
 		protected JacobRunnable doStep(int step, Synch done) {
-			return new SequenceItemEmitter(greetings[step], done);
+			return new SequenceItemEmitter(greetings[step], done, out);
         }
 
-		class SequenceItemEmitter extends JacobRunnable {
+		static class SequenceItemEmitter extends JacobRunnable {
 			private final String string;
 			private final Synch done;
+			private final Val out;
 
-			public SequenceItemEmitter(String string, Synch done) {
+			@JsonCreator
+			public SequenceItemEmitter(@JsonProperty("string") String string, @JsonProperty("done") Synch done, @JsonProperty("out") Val out) {
 				this.string = string;
 				this.done = done;
+				this.out = out;
 			}
 
 			@Override
@@ -241,14 +253,18 @@ public class HelloWorld extends JacobRunnable {
     }
 
     public static void main(String args[]) throws Exception {
+        // enable logging
+        //BasicConfigurator.configure();
         long start = System.currentTimeMillis();
-        ObjectMapper mapper = JacksonExecutionQueueImpl.configureMapper();
+        ObjectMapper mapper = new ObjectMapper(); 
+        JacksonExecutionQueueImpl.configureMapper(mapper);
+
         JacobVPU vpu = new JacobVPU();
         JacksonExecutionQueueImpl queue = new JacksonExecutionQueueImpl();
         vpu.setContext(queue);
         vpu.inject(new HelloWorld());
         while (vpu.execute()) {
-            queue = loadAndRestoreQueue(mapper, queue);
+            queue = loadAndRestoreQueue(mapper, (JacksonExecutionQueueImpl)vpu.getContext());
             vpu.setContext(queue);
             System.out.println(vpu.isComplete() ? "<0>" : ".");
             //vpu.dumpState();
@@ -258,13 +274,10 @@ public class HelloWorld extends JacobRunnable {
     }
 
     public static JacksonExecutionQueueImpl loadAndRestoreQueue(ObjectMapper mapper, JacksonExecutionQueueImpl in) throws Exception {
-        String json = mapper.writeValueAsString(in);
-        // System.out.println(json);
+        byte[] json = mapper.writeValueAsBytes(in);
+        // print json
+        //System.out.println(new String(json));
         JacksonExecutionQueueImpl q2 = mapper.readValue(json, JacksonExecutionQueueImpl.class);
-        //String json2 = mapper.writeValueAsString(q2);
-
-        //    	System.out.println("----");
-        //    	System.out.println(json2);
         return q2;
     }
 

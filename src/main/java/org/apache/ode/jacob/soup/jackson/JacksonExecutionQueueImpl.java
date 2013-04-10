@@ -55,7 +55,7 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
 		super(null);
 	}
 	
-    public static ObjectMapper configureMapper() {
+    public static void configureMapper(ObjectMapper om) {
         
         SimpleModule sm = new SimpleModule("jacobmodule");
         sm.addSerializer(ChannelProxy.class, new ChannelProxySerializer());
@@ -65,7 +65,6 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
         sm.addDeserializer(Continuation.class, new ContinuationDeserializer());
         sm.addDeserializer(Channel.class, new ChannelProxyDeserializer());
         
-        ObjectMapper om = new ObjectMapper();
         om.registerModule(sm);
         om.disable(MapperFeature.AUTO_DETECT_CREATORS);
         om.disable(MapperFeature.AUTO_DETECT_GETTERS);
@@ -73,11 +72,11 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
         om.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
         
         om.setDefaultTyping(new JacobTypeResolverBuilder());
+        om.setAnnotationIntrospector(new JacobJacksonAnnotationIntrospector());
         
+        om.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         om.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
-        om.enable(SerializationFeature.INDENT_OUTPUT);
-        
-        return om;
+        //om.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
 	
@@ -156,6 +155,10 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
                 }
 
             }
+
+            // Garbage collection
+            // TODO
+
             return soup;
         }
 

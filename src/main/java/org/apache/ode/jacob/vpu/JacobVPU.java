@@ -140,6 +140,10 @@ public final class JacobVPU {
         _executionQueue = executionQueue;
         _executionQueue.setClassLoader(_classLoader);
     }
+    
+    public ExecutionQueue getContext() {
+        return _executionQueue;
+    }
 
     public void registerExtension(Class<?> extensionClass, Object obj) {
         LOG.trace(">> setContext (extensionClass={}, obj={})", extensionClass, obj);

@@ -22,14 +22,15 @@ import org.apache.ode.jacob.JacobRunnable;
 import org.apache.ode.jacob.ReceiveProcess;
 import org.apache.ode.jacob.Synch;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Abstract process that executes a number of steps sequentially.
  */
 @SuppressWarnings("serial")
 public abstract class Sequence extends JacobRunnable {
-    private int _steps;
-    private int _current;
-    private Synch _done;
+    private final SequenceData data = new SequenceData();
 
     /**
      * Create a {@link Sequence} with a number of steps.
@@ -38,30 +39,20 @@ public abstract class Sequence extends JacobRunnable {
      * @param done synchronous callback
      */
     public Sequence(int steps, Synch done) {
-        _steps = steps;
-        _current = 0;
-        _done = done;
+        data._steps = steps;
+        data._current = 0;
+        data._done = done;
     }
 
-    /**
-     * Process execution block
-     */
     public void run() {
-        if (_current >= _steps) {
-            if (_done != null) {
-                _done.ret();
+        if (data._current >= data._steps) {
+            if (data._done != null) {
+                data._done.ret();
             }
         } else {
             Synch r = newChannel(Synch.class);
-            object(new ReceiveProcess() {
-                private static final long serialVersionUID = -6999108928780639603L;
-            }.setChannel(r).setReceiver(new Synch() {
-                public void ret() {
-                    ++_current;
-                    instance(Sequence.this);
-                }
-            }));
-            instance(doStep(_current, r));
+            object(new SequenceReceiveProcess().setChannel(r).setReceiver(new SequenceSynch(data, this)));
+            instance(doStep(data._current, r));
         }
     }
 
@@ -72,4 +63,27 @@ public abstract class Sequence extends JacobRunnable {
      * @return runnable process
      */
     protected abstract JacobRunnable doStep(int step, Synch done);
+
+    public static class SequenceData {
+        public int _steps;
+        public int _current;
+        public Synch _done;
+        //public Sequence _seq;
+    }
+
+    static class SequenceReceiveProcess extends ReceiveProcess {}
+    static class SequenceSynch implements Synch {
+        private final SequenceData data;
+        private final Sequence parent;
+
+        @JsonCreator
+        public SequenceSynch(@JsonProperty("data") SequenceData data, @JsonProperty("parent") Sequence parent) {
+            this.data = data;
+            this.parent = parent;
+        }
+        public void ret() {
+            ++data._current;
+            instance(parent);
+        }
+    }
 }

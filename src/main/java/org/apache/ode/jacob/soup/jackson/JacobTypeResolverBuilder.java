@@ -23,6 +23,8 @@ import java.util.Collection;
 import org.apache.ode.jacob.Channel;
 import org.apache.ode.jacob.ChannelProxy;
 import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.soup.CommChannel;
+import org.apache.ode.jacob.vpu.ChannelFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -34,11 +36,11 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.jsontype.impl.AsPropertyTypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.impl.ClassNameIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
 
@@ -66,18 +68,14 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
     
     private boolean useForType(JavaType t) {
         if (JacobObject.class.isAssignableFrom(t.getRawClass())) {
-            //System.err.println("XXX: JO " + t);
             return true;
         }
         
         if (Channel.class.isAssignableFrom(t.getRawClass()))  {
-            //System.err.println("XXX: CH " + t);
             return true;
         }
         
-        //if (!t.isConcrete()) {
         if (t.getRawClass() == Object.class) {
-        	//System.err.println("XXX: CON " + t + "- " + t.isConcrete());
             return true;
         }
 
@@ -89,13 +87,9 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
             JavaType baseType, Collection<NamedType> subtypes) {
         
         if (useForType(baseType)) {
-            if (baseType.isInterface() && Channel.class.isAssignableFrom(baseType.getRawClass())) {
-                TypeIdResolver idRes = idResolver(config, baseType, subtypes, false, true);
-                return new AsPropertyTypeDeserializer(baseType, idRes,
-                        _typeProperty, _typeIdVisible, Channel.class);
-            } else {
-                return super.buildTypeDeserializer(config, baseType, subtypes);    
-            }
+            // set Channel as the default impl.
+            defaultImpl(Channel.class);
+            return super.buildTypeDeserializer(config, baseType, subtypes);
         }
         
         return null;
@@ -113,7 +107,9 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
 
         public String idFromValue(Object value) {
             if (value instanceof ChannelProxy) {
-                return "<<channelproxy>>";
+                CommChannel commChannel = (CommChannel) ChannelFactory.getBackend((Channel)value);
+                return commChannel.getType().getName();
+
             }
             return delegate.idFromValue(value);
         }
@@ -123,10 +119,18 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
         }
 
         public JavaType typeFromId(String id) {
-            if ("<<channelproxy>>".equals(id)) {
-                return null; // force jackson to use default impl
+            try {
+                Class<?> cls =  ClassUtil.findClass(id);
+                if (Channel.class.isAssignableFrom(cls) && cls.isInterface()) {
+                    // return null to force Jackson to use default deserializer (which is the ChannelProxyDeserializer)
+                    return null;
+                }
+                return _typeFactory.constructSpecializedType(_baseType, cls);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException("Invalid type id '"+id+"' (for id type 'Id.class'): no such class found");
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Invalid type id '"+id+"' (for id type 'Id.class'): "+e.getMessage(), e);
             }
-            return delegate.typeFromId(id);
         }
 
         public Id getMechanism() {
