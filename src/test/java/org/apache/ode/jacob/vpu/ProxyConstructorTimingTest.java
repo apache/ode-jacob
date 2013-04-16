@@ -22,11 +22,10 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import org.apache.ode.jacob.ChannelProxy;
-import org.apache.ode.jacob.Channel;
-import org.apache.ode.jacob.ProcessUtil;
-
 import junit.framework.TestCase;
+
+import org.apache.ode.jacob.Channel;
+import org.apache.ode.jacob.ChannelProxy;
 
 
 public class ProxyConstructorTimingTest extends TestCase {

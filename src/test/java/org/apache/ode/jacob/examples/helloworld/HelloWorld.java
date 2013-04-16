@@ -91,7 +91,6 @@ public class HelloWorld extends JacobRunnable {
                 this.str = str;
             }
 
-            @Override
             public void ret() {
                 System.out.println(str + " ACKed");
             }
