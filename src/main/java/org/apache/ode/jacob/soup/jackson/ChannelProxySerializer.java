@@ -19,6 +19,8 @@
 package org.apache.ode.jacob.soup.jackson;
 
 import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.ode.jacob.Channel;
 import org.apache.ode.jacob.ChannelProxy;
@@ -34,6 +36,8 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class ChannelProxySerializer extends StdSerializer<ChannelProxy>{
 
+    private final Set<Integer> serializedChannels = new LinkedHashSet<Integer>();
+    
     protected ChannelProxySerializer() {
         super(ChannelProxy.class);
     }
@@ -61,8 +65,16 @@ public class ChannelProxySerializer extends StdSerializer<ChannelProxy>{
             SerializerProvider provider) throws JsonGenerationException, IOException {
         CommChannel commChannel = (CommChannel) ChannelFactory.getBackend((Channel)value);
         ClassNameIdResolver idResolver = new ClassNameIdResolver(provider.constructType(commChannel.getType()), provider.getTypeFactory());
+        Integer cid = (Integer)commChannel.getId();
         jgen.writeStringField("channelType", idResolver.idFromBaseType());
-        jgen.writeNumberField("channelId", (Integer)commChannel.getId());
+        jgen.writeNumberField("channelId", cid);
+
+        // save channel id for garbage collection
+        serializedChannels.add(cid);
+    }
+
+    public Set<Integer> getSerializedChannels() {
+        return serializedChannels;
     }
 
 }

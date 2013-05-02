@@ -30,9 +30,10 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -80,9 +81,9 @@ public class ExecutionQueueImpl implements ExecutionQueue {
      * forward progress; this scenario would occur if a maximum processign
      * time-per-instance policy were in effect.
      */
-    protected Set<Continuation> _reactions = new HashSet<Continuation>();
+    protected Set<Continuation> _reactions = new LinkedHashSet<Continuation>();
 
-    protected Map<Integer, ChannelFrame> _channels = new HashMap<Integer, ChannelFrame>();
+    protected Map<Integer, ChannelFrame> _channels = new LinkedHashMap<Integer, ChannelFrame>();
 
     /**
      * The "expected" cycle counter, use to detect database serialization
@@ -96,7 +97,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
 
     protected Serializable _gdata;
 
-    private Map<Object, LinkedList<IndexedObject>> _index = new HashMap<Object, LinkedList<IndexedObject>>();
+    private Map<Object, LinkedList<IndexedObject>> _index = new LinkedHashMap<Object, LinkedList<IndexedObject>>();
 
     public ExecutionQueueImpl(ClassLoader classLoader) {
         _classLoader = classLoader;
@@ -454,9 +455,9 @@ public class ExecutionQueueImpl implements ExecutionQueue {
 
         boolean replicatedRecv;
 
-        Set<ObjectFrame> objFrames = new HashSet<ObjectFrame>();
+        Set<ObjectFrame> objFrames = new LinkedHashSet<ObjectFrame>();
 
-        Set<MessageFrame> msgFrames = new HashSet<MessageFrame>();
+        Set<MessageFrame> msgFrames = new LinkedHashSet<MessageFrame>();
 
         public String description;
 
@@ -472,6 +473,18 @@ public class ExecutionQueueImpl implements ExecutionQueue {
 
         public Integer getId() {
             return Integer.valueOf(id);
+        }
+        
+        public int getRefCount() {
+            return refCount;
+        }
+        
+        public Set<ObjectFrame> getObjFrames() {
+            return objFrames;
+        }
+
+        public Set<MessageFrame> getMsgFrames() {
+            return msgFrames;
         }
 
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
@@ -535,7 +548,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
     @SuppressWarnings("serial")
     protected static class CommGroupFrame implements Serializable {
         boolean replicated;
-        public Set<CommFrame> commFrames = new HashSet<CommFrame>();
+        public Set<CommFrame> commFrames = new LinkedHashSet<CommFrame>();
 
         // default constructor for deserialization
         public CommGroupFrame() {}
@@ -593,14 +606,13 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         }
     }
 
-    private static class MessageFrame extends CommFrame implements Externalizable {
+    protected static class MessageFrame extends CommFrame implements Externalizable {
         private static final long serialVersionUID = -1112437852498126297L;
 
         String method;
         Object[] args;
 
         // Used for deserialization
-        @SuppressWarnings("unused")
         public MessageFrame() {
         }
 

@@ -20,7 +20,7 @@ package org.apache.ode.jacob;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 
@@ -53,7 +53,7 @@ public abstract class ReceiveProcess extends ChannelListener {
 
     public Set<Method> getImplementedMethods() {
         if (_implementedMethods == null) {
-            Set<Method> implementedMethods = new HashSet<Method>();
+            Set<Method> implementedMethods = new LinkedHashSet<Method>();
             ClassUtil.getImplementedMethods(implementedMethods, receiver.getClass());
             _implementedMethods = Collections.unmodifiableSet(implementedMethods);
         }

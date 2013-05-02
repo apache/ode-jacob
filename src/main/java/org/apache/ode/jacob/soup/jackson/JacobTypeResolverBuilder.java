@@ -40,7 +40,6 @@ import com.fasterxml.jackson.databind.jsontype.impl.ClassNameIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
 
@@ -65,7 +64,15 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
         
         return useForType(baseType) ? super.buildTypeSerializer(config, baseType, subtypes) : null;
     }
+
     
+    @Override
+    public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
+            JavaType baseType, Collection<NamedType> subtypes) {
+        
+        return (useForType(baseType)) ? super.buildTypeDeserializer(config, baseType, subtypes) : null;
+    }
+
     private boolean useForType(JavaType t) {
         if (JacobObject.class.isAssignableFrom(t.getRawClass())) {
             return true;
@@ -82,18 +89,6 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
         return false;
     }
 
-    @Override
-    public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
-            JavaType baseType, Collection<NamedType> subtypes) {
-        
-        if (useForType(baseType)) {
-            // set Channel as the default impl.
-            defaultImpl(Channel.class);
-            return super.buildTypeDeserializer(config, baseType, subtypes);
-        }
-        
-        return null;
-    }
 
     public static class ChannelAwareTypeIdResolver extends TypeIdResolverBase {
 
@@ -119,18 +114,7 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
         }
 
         public JavaType typeFromId(String id) {
-            try {
-                Class<?> cls =  ClassUtil.findClass(id);
-                if (Channel.class.isAssignableFrom(cls) && cls.isInterface()) {
-                    // return null to force Jackson to use default deserializer (which is the ChannelProxyDeserializer)
-                    return null;
-                }
-                return _typeFactory.constructSpecializedType(_baseType, cls);
-            } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException("Invalid type id '"+id+"' (for id type 'Id.class'): no such class found");
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid type id '"+id+"' (for id type 'Id.class'): "+e.getMessage(), e);
-            }
+            return delegate.typeFromId(id);
         }
 
         public Id getMechanism() {

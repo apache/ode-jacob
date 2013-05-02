@@ -30,6 +30,8 @@ import org.apache.ode.jacob.vpu.JacobVPU;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.smile.SmileFactory;
+import com.fasterxml.jackson.dataformat.smile.SmileGenerator;
 
 /**
  * Simple Hello World example to showcase different
@@ -254,13 +256,23 @@ public class HelloWorld extends JacobRunnable {
     public static void main(String args[]) throws Exception {
         // enable logging
         //BasicConfigurator.configure();
-        long start = System.currentTimeMillis();
-        ObjectMapper mapper = new ObjectMapper(); 
+        
+        SmileFactory sf = null; 
+        // // enable smile:
+        // sf = new SmileFactory();
+        // sf.enable(SmileGenerator.Feature.CHECK_SHARED_STRING_VALUES);
+        // sf.enable(SmileGenerator.Feature.ENCODE_BINARY_AS_7BIT);
+        
+        ObjectMapper mapper = new ObjectMapper(sf); 
+        
+        
         JacksonExecutionQueueImpl.configureMapper(mapper);
 
         JacobVPU vpu = new JacobVPU();
         JacksonExecutionQueueImpl queue = new JacksonExecutionQueueImpl();
         vpu.setContext(queue);
+
+        long start = System.currentTimeMillis();
         vpu.inject(new HelloWorld());
         while (vpu.execute()) {
             queue = loadAndRestoreQueue(mapper, (JacksonExecutionQueueImpl)vpu.getContext());
@@ -268,8 +280,8 @@ public class HelloWorld extends JacobRunnable {
             System.out.println(vpu.isComplete() ? "<0>" : ".");
             //vpu.dumpState();
         }
-        vpu.dumpState();
         System.out.println("Runtime in ms: " + (System.currentTimeMillis() - start));
+        vpu.dumpState();
     }
 
     public static JacksonExecutionQueueImpl loadAndRestoreQueue(ObjectMapper mapper, JacksonExecutionQueueImpl in) throws Exception {

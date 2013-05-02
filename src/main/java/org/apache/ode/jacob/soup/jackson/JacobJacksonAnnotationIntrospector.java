@@ -15,5 +15,5 @@ public class JacobJacksonAnnotationIntrospector extends
     public ObjectIdInfo findObjectIdInfo(Annotated ann) {
         return new ObjectIdInfo("@id", Object.class, ObjectIdGenerators.IntSequenceGenerator.class);
     }
-    
+
 }

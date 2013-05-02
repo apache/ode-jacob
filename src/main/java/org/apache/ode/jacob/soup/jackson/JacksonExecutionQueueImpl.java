@@ -19,14 +19,19 @@
 package org.apache.ode.jacob.soup.jackson;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.ode.jacob.Channel;
 import org.apache.ode.jacob.ChannelProxy;
 import org.apache.ode.jacob.soup.Continuation;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -35,11 +40,16 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -51,19 +61,39 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  */
 public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JacksonExecutionQueueImpl.class);
+    
 	public JacksonExecutionQueueImpl() {
 		super(null);
 	}
 	
     public static void configureMapper(ObjectMapper om) {
         
-        SimpleModule sm = new SimpleModule("jacobmodule");
-        sm.addSerializer(ChannelProxy.class, new ChannelProxySerializer());
+        SimpleModule sm = new SimpleModule("jacob", Version.unknownVersion());
+        
+        final ChannelProxySerializer cps = new ChannelProxySerializer();
+        
+        sm.addSerializer(ChannelProxy.class, cps);
         sm.addSerializer(Continuation.class, new ContinuationSerializer());
-        sm.addSerializer(JacksonExecutionQueueImpl.class, new ExecutionQueueImplSerializer());
+        sm.addSerializer(JacksonExecutionQueueImpl.class, new ExecutionQueueImplSerializer(cps));
         sm.addDeserializer(JacksonExecutionQueueImpl.class, new ExecutionQueueImplDeserializer());
         sm.addDeserializer(Continuation.class, new ContinuationDeserializer());
         sm.addDeserializer(Channel.class, new ChannelProxyDeserializer());
+        
+        sm.setDeserializerModifier(new BeanDeserializerModifier() {
+
+            public JsonDeserializer<?> modifyDeserializer(
+                    DeserializationConfig config, BeanDescription beanDesc,
+                    JsonDeserializer<?> deserializer) {
+                
+                // use channel proxy deserializer for channels.
+                if (Channel.class.isAssignableFrom(beanDesc.getBeanClass()) && beanDesc.getBeanClass().isInterface()) {
+                    return new ChannelProxyDeserializer();
+                }
+
+                return super.modifyDeserializer(config, beanDesc, deserializer);
+            }
+        });
         
         om.registerModule(sm);
         om.disable(MapperFeature.AUTO_DETECT_CREATORS);
@@ -82,8 +112,11 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
 	
     public static class ExecutionQueueImplSerializer extends StdSerializer<JacksonExecutionQueueImpl> {
 
-        public ExecutionQueueImplSerializer() {
+        private ChannelProxySerializer channelProxySerializer;
+
+        public ExecutionQueueImplSerializer(ChannelProxySerializer cps) {
             super(JacksonExecutionQueueImpl.class);
+            this.channelProxySerializer = cps;
         }
         
         @Override
@@ -108,11 +141,44 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
         private void serializeContents(JacksonExecutionQueueImpl value, JsonGenerator jgen,
                 SerializerProvider provider) throws JsonGenerationException, IOException {
 
-        	jgen.writeNumberField("objIdCounter", value._objIdCounter);
+            channelProxySerializer.getSerializedChannels().clear();
+            
+        	// write metadata
+            jgen.writeNumberField("objIdCounter", value._objIdCounter);
             jgen.writeNumberField("currentCycle", value._currentCycle);
             
+            // write continuations
             jgen.writeObjectField("continuations", value._reactions.toArray(new Continuation[] {}));
+            
+            
+            // channel garbage collection
+            //   - traverse whole object graph and record referenced channel proxies.
+            //     - first, regularily serialize continuations.
+            //     - second, serialize channels to a null serializer in order to record channel references
+            //       without writing them to the stream.
+            //   - remove unused channels.
+            //   - serialize remaining channels.
+
+            // write channels to null serializer
+            JsonGenerator nullgen = new NullJsonGenerator(null, 0, jgen.getCodec());
+            nullgen.writeObjectField("channels", value._channels.values().toArray(new ChannelFrame[] {}));
+
+            // remove unreferenced channels (and keep those which have been exported using export()).
+            Set<Integer> referencedChannels = channelProxySerializer.getSerializedChannels();
+            for (Iterator<ChannelFrame> i = value._channels.values().iterator(); i.hasNext();) {
+                ChannelFrame cframe = i.next();
+                if (referencedChannels.contains(cframe.getId()) || cframe.getRefCount() > 0) {
+                    // skip
+                } else {
+                    LOG.debug("GC Channel: {}", cframe);
+                    i.remove();
+                }
+            }
+
+            // write channels
             jgen.writeObjectField("channels", value._channels.values().toArray(new ChannelFrame[] {}));
+            
+            // write global data
             jgen.writeObjectField("global", value._gdata);
         }
     }
@@ -152,12 +218,11 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
                     for (ChannelFrame f : frames) {
                         soup._channels.put(f.getId(), f);
                     }
+                } else if ("global".equals(fieldname)) {
+                    soup._gdata = jp.readValueAs(Serializable.class);
                 }
 
             }
-
-            // Garbage collection
-            // TODO
 
             return soup;
         }

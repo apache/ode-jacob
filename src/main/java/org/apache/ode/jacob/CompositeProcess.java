@@ -20,13 +20,13 @@ package org.apache.ode.jacob;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 
 @SuppressWarnings("serial")
 public final class CompositeProcess extends ChannelListener {
-    private Set<ChannelListener> processes = new HashSet<ChannelListener>();
+    private Set<ChannelListener> processes = new LinkedHashSet<ChannelListener>();
 
     public CompositeProcess() {
     }
