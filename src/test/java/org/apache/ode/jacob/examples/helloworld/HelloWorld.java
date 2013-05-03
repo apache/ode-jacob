@@ -25,13 +25,14 @@ import org.apache.ode.jacob.Synch;
 import org.apache.ode.jacob.Val;
 import org.apache.ode.jacob.examples.sequence.Sequence;
 import org.apache.ode.jacob.soup.jackson.JacksonExecutionQueueImpl;
+import org.apache.ode.jacob.soup.jackson.JacobModule;
 import org.apache.ode.jacob.vpu.JacobVPU;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
-import com.fasterxml.jackson.dataformat.smile.SmileGenerator;
 
 /**
  * Simple Hello World example to showcase different
@@ -264,9 +265,9 @@ public class HelloWorld extends JacobRunnable {
         // sf.enable(SmileGenerator.Feature.ENCODE_BINARY_AS_7BIT);
         
         ObjectMapper mapper = new ObjectMapper(sf); 
+        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         
-        
-        JacksonExecutionQueueImpl.configureMapper(mapper);
+        mapper.registerModule(new JacobModule());
 
         JacobVPU vpu = new JacobVPU();
         JacksonExecutionQueueImpl queue = new JacksonExecutionQueueImpl();
@@ -287,7 +288,7 @@ public class HelloWorld extends JacobRunnable {
     public static JacksonExecutionQueueImpl loadAndRestoreQueue(ObjectMapper mapper, JacksonExecutionQueueImpl in) throws Exception {
         byte[] json = mapper.writeValueAsBytes(in);
         // print json
-        //System.out.println(new String(json));
+        System.out.println(new String(json));
         JacksonExecutionQueueImpl q2 = mapper.readValue(json, JacksonExecutionQueueImpl.class);
         return q2;
     }

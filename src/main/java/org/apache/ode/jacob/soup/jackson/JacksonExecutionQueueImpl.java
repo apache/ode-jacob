@@ -26,33 +26,20 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.ode.jacob.Channel;
-import org.apache.ode.jacob.ChannelProxy;
 import org.apache.ode.jacob.soup.Continuation;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -66,49 +53,6 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
 	public JacksonExecutionQueueImpl() {
 		super(null);
 	}
-	
-    public static void configureMapper(ObjectMapper om) {
-        
-        SimpleModule sm = new SimpleModule("jacob", Version.unknownVersion());
-        
-        final ChannelProxySerializer cps = new ChannelProxySerializer();
-        
-        sm.addSerializer(ChannelProxy.class, cps);
-        sm.addSerializer(Continuation.class, new ContinuationSerializer());
-        sm.addSerializer(JacksonExecutionQueueImpl.class, new ExecutionQueueImplSerializer(cps));
-        sm.addDeserializer(JacksonExecutionQueueImpl.class, new ExecutionQueueImplDeserializer());
-        sm.addDeserializer(Continuation.class, new ContinuationDeserializer());
-        sm.addDeserializer(Channel.class, new ChannelProxyDeserializer());
-        
-        sm.setDeserializerModifier(new BeanDeserializerModifier() {
-
-            public JsonDeserializer<?> modifyDeserializer(
-                    DeserializationConfig config, BeanDescription beanDesc,
-                    JsonDeserializer<?> deserializer) {
-                
-                // use channel proxy deserializer for channels.
-                if (Channel.class.isAssignableFrom(beanDesc.getBeanClass()) && beanDesc.getBeanClass().isInterface()) {
-                    return new ChannelProxyDeserializer();
-                }
-
-                return super.modifyDeserializer(config, beanDesc, deserializer);
-            }
-        });
-        
-        om.registerModule(sm);
-        om.disable(MapperFeature.AUTO_DETECT_CREATORS);
-        om.disable(MapperFeature.AUTO_DETECT_GETTERS);
-        om.disable(MapperFeature.AUTO_DETECT_IS_GETTERS);
-        om.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-        
-        om.setDefaultTyping(new JacobTypeResolverBuilder());
-        om.setAnnotationIntrospector(new JacobJacksonAnnotationIntrospector());
-        
-        om.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        om.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
-        //om.enable(SerializationFeature.INDENT_OUTPUT);
-    }
-
 	
     public static class ExecutionQueueImplSerializer extends StdSerializer<JacksonExecutionQueueImpl> {
 
