@@ -29,6 +29,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
+/**
+ * Jackson serializer for Continuation objects.
+ * 
+ * @author Tammo van Lessen
+ *
+ */
 public class ContinuationSerializer extends StdSerializer<Continuation> {
 
     public ContinuationSerializer() {

@@ -34,6 +34,15 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.jsontype.impl.ClassNameIdResolver;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
+/**
+ * Jackson serializer for Channel Proxies.
+ * Serializes only channel id and channel type. Also keeps a
+ * list of serialized channels, which is needed for the garbage
+ * collection of unused channels in the ExecutionQueue serializer.
+ * 
+ * @author Tammo van Lessen
+ *
+ */
 public class ChannelProxySerializer extends StdSerializer<ChannelProxy>{
 
     private final Set<Integer> serializedChannels = new LinkedHashSet<Integer>();

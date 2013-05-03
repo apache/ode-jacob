@@ -40,6 +40,8 @@ import com.fasterxml.jackson.dataformat.smile.SmileFactory;
  * 
  * Inspired by http://scienceblogs.com/goodmath/2007/04/16/back-to-calculus-a-better-intr-1/
  * 
+ * @author Tammo van Lessen
+ * 
  */
 @SuppressWarnings("serial")
 public class HelloWorld extends JacobRunnable {
@@ -163,7 +165,7 @@ public class HelloWorld extends JacobRunnable {
 
     }
 
-    private void simpleHelloWorld() {
+    protected void simpleHelloWorld() {
         // new(out)
         final Val out = newChannel(Val.class, "simpleHelloWorld-out");
         // new(x)
@@ -178,7 +180,7 @@ public class HelloWorld extends JacobRunnable {
         instance(new StringEmitterProcess("World", x));
     }
     
-    private void reliableHelloWorld() {
+    protected void reliableHelloWorld() {
         // reliable version of the code above
         // (new(callback).!out(hello).?callback) | (new(callback).!out(world).?callback)
         
@@ -194,7 +196,7 @@ public class HelloWorld extends JacobRunnable {
     }
     
     
-    private void sequencedHelloWorld() {
+    protected void sequencedHelloWorld() {
         // send hello world as a sequence
         // !out(hello).!out(world)
 
@@ -288,7 +290,7 @@ public class HelloWorld extends JacobRunnable {
     public static JacksonExecutionQueueImpl loadAndRestoreQueue(ObjectMapper mapper, JacksonExecutionQueueImpl in) throws Exception {
         byte[] json = mapper.writeValueAsBytes(in);
         // print json
-        System.out.println(new String(json));
+        //System.out.println(new String(json));
         JacksonExecutionQueueImpl q2 = mapper.readValue(json, JacksonExecutionQueueImpl.class);
         return q2;
     }

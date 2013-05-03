@@ -45,6 +45,9 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 /**
  * Variant of {@link org.apache.ode.jacob.vpu.ExecutionQueueImpl} that can be
  * serialized and deserialized with Jackson.
+ * 
+ * @author Tammo van Lessen
+ * 
  */
 public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
 

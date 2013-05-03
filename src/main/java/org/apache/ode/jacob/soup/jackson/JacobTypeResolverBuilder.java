@@ -39,8 +39,16 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.jsontype.impl.ClassNameIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
+
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
+/**
+ * Customized StdTypeResolverBuilder that enables a custom type id resolving
+ * mechanism for Channels.
+ * 
+ * @author Tammo van Lessen
+ *
+ */
 public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
 
     public JacobTypeResolverBuilder() {

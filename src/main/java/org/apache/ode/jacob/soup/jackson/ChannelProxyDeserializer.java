@@ -30,6 +30,13 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
+/**
+ * Jackson deserializer for Channels.
+ * Creates ChannelProxy instances based on channel id and channel type.
+ * 
+ * @author Tammo van Lessen
+ *
+ */
 public class ChannelProxyDeserializer extends StdDeserializer<Channel> {
 
     private static final long serialVersionUID = 1L;

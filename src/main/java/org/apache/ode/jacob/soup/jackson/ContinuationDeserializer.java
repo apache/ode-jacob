@@ -29,6 +29,12 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
+/**
+ * Jackson deserializer for Continuation objects.
+ * 
+ * @author Tammo van Lessen
+ *
+ */
 public class ContinuationDeserializer extends StdDeserializer<Continuation> {
 
 	private static final long serialVersionUID = 1L;
