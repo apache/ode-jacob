@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ode.jacob.soup.Jackson;
+package org.apache.ode.jacob.soup.jackson;
 
 import java.util.ArrayList;
 import java.util.List;
