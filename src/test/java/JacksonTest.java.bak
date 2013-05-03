@@ -1,0 +1,124 @@
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTypeResolverBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.util.StdConverter;
+
+
+public class JacksonTest {
+    
+    static int nextId = 0;
+    static Map<Integer, Base> objectsById = new HashMap<Integer, JacksonTest.Base>();
+    Root root;
+    
+    @JsonIdentityInfo(generator=ObjectIdGenerators.UUIDGenerator.class)
+    public static class Base {
+        public int id;
+        
+        public Base() {
+            id = nextId++;
+        }
+    }
+    
+    @JsonIdentityInfo(generator=ObjectIdGenerators.UUIDGenerator.class)
+    public static class Root {
+        public Object a;
+        public Object b;
+        
+        public String toString() {
+            return "root [a=" + a + "; b=" + b + "]";
+        }
+    }
+    
+    public static class A extends Base {
+        public String someField = "foo";
+    }
+    
+    public static class B extends Base {
+        public String otherField = "bar";
+    }
+    
+    public static class Placeholder extends Base {
+    }
+    
+    public static class BaseToPlaceholderConverter extends StdConverter<Base, Placeholder> {
+
+        public Placeholder convert(Base value) {
+            Placeholder p = new Placeholder();
+            p.id = value.id;
+            return p;
+        }
+    }
+    public static class PlaceholderToBaseConverter extends StdConverter<Placeholder, Base> {
+
+        public Base convert(Placeholder value) {
+            return objectsById.get(value.id);
+        }
+    }
+    
+    public static class MyAnnotationInspector extends JacksonAnnotationIntrospector {
+        @Override
+        public Object findSerializationConverter(Annotated a) {
+            if (Base.class.isAssignableFrom(a.getRawType())) {
+                return new BaseToPlaceholderConverter();
+            }
+            return super.findSerializationConverter(a);
+        }
+
+        @Override
+        public Object findDeserializationConverter(Annotated a) {
+            if (Base.class.isAssignableFrom(a.getRawType())) {
+                return new PlaceholderToBaseConverter();
+            }
+            return super.findSerializationConverter(a);
+        }
+
+    }
+    
+    @Before
+    public void setUp() {
+        root = new Root();
+        
+        A a = new A();
+        B b = new B();
+        
+        root.a = a;
+        root.b = b;
+    
+        objectsById.put(a.id, a);
+        objectsById.put(b.id, b);
+    }
+    
+    @Test
+    public void test() throws Exception {
+        ObjectMapper om = new ObjectMapper();
+//        om.disable(MapperFeature.AUTO_DETECT_CREATORS);
+//        om.disable(MapperFeature.AUTO_DETECT_GETTERS);
+//        om.disable(MapperFeature.AUTO_DETECT_IS_GETTERS);
+//        om.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+        om.setAnnotationIntrospector(new MyAnnotationInspector());
+        om.enableDefaultTyping();
+
+        String json = om.writeValueAsString(root);
+        System.out.println(json);
+        
+        //Root root2 = om.readValue(json, Root.class);
+        System.out.println(root);
+        //System.out.println(root2);
+
+    }
+    
+    
+}
