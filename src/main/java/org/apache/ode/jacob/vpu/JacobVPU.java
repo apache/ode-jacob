@@ -329,6 +329,32 @@ public final class JacobVPU {
             return ChannelFactory.createChannel(cframe, channelType);
         }
 
+        public void object(boolean replicate, ChannelListener[] ml) {
+            if (LOG.isTraceEnabled()) {
+                StringBuffer msg = new StringBuffer();
+                msg.append(_cycle);
+                msg.append(": ");
+                for (int i = 0; i < ml.length; ++i) {
+                    if (i != 0) msg.append(" + ");
+                    if (ml[i] instanceof ReceiveProcess) {
+                        ReceiveProcess rp = (ReceiveProcess)ml[i];
+                        msg.append(rp.getChannel());
+                        msg.append(" ? ");
+                        msg.append(rp.toString());
+                    }
+                }
+                LOG.debug(msg.toString());
+            }
+
+            _statistics.numContinuations++;
+
+            CommGroup grp = new CommGroup(replicate);
+            for (int i = 0; i < ml.length; ++i) {
+                addCommChannel(grp, ml[i]);
+            }
+            _executionQueue.add(grp);
+        }
+        
         public void object(boolean replicate, ChannelListener ml) {
             if (LOG.isTraceEnabled()) {
                 StringBuffer msg = new StringBuffer();
