@@ -24,14 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import org.apache.ode.jacob.Channel;
-import org.apache.ode.jacob.ChannelListener;
-import org.apache.ode.jacob.CompositeProcess;
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.JacobRunnable;
 import org.apache.ode.jacob.JacobThread;
-import org.apache.ode.jacob.ReceiveProcess;
 import org.apache.ode.jacob.Synch;
+import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.ChannelListener;
+import org.apache.ode.jacob.oo.CompositeProcess;
+import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.soup.CommGroup;
 import org.apache.ode.jacob.soup.CommRecv;

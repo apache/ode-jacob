@@ -20,7 +20,7 @@ package org.apache.ode.jacob.soup.jackson;
 
 import java.io.IOException;
 
-import org.apache.ode.jacob.Channel;
+import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.vpu.ChannelFactory;
 

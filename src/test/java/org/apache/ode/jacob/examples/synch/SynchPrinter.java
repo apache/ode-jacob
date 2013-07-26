@@ -19,12 +19,12 @@
 package org.apache.ode.jacob.examples.synch;
 
 import org.apache.ode.jacob.JacobRunnable;
-import org.apache.ode.jacob.ReceiveProcess;
 import org.apache.ode.jacob.Synch;
+import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
 import org.apache.ode.jacob.vpu.JacobVPU;
 
-import static org.apache.ode.jacob.ProcessUtil.receive;
+import static org.apache.ode.jacob.oo.ProcessUtil.receive;
 
 /**
  * Example JACOB process illustrating the use of {@link SynchPrint}

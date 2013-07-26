@@ -22,7 +22,7 @@ package org.apache.ode.jacob;
  * Interface implemented by JACOB objects that are to be indexed. Indexed objects have the nice feature that they
  * can be retrieved from the execution queue by their index key. This is handy for introspecting the state of
  * the execution queue. Note that indexed objects are made available so long as they are referenced in some way by
- * objects in the queue. The reference does not need to be direct; e.g. if a {@link org.apache.ode.jacob.ChannelListener}
+ * objects in the queue. The reference does not need to be direct; e.g. if a {@link org.apache.ode.jacob.oo.ChannelListener}
  * in the execution queue references an indexed object, that indexed object will be indexed.
  *
  * @author Maciej Szefler - m s z e f l e r @ g m a i l . c o m

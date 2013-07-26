@@ -41,10 +41,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.ode.jacob.Channel;
-import org.apache.ode.jacob.ChannelListener;
 import org.apache.ode.jacob.IndexedObject;
 import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.ChannelListener;
 import org.apache.ode.jacob.soup.Comm;
 import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.soup.CommGroup;
@@ -685,7 +685,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
                 throw new IllegalArgumentException("Cannot replace non Serializable instance of " + obj.getClass());
             }
 
-            if (obj instanceof org.apache.ode.jacob.ChannelProxy) {
+            if (obj instanceof org.apache.ode.jacob.oo.ChannelProxy) {
                 CommChannel commChannel = (CommChannel) ChannelFactory.getBackend((Channel)obj);
                 _serializedChannels.add(commChannel.getId());
                 return new ChannelRef(commChannel.getType(), (Integer) commChannel.getId());

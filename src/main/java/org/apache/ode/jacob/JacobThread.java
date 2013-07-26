@@ -20,6 +20,9 @@ package org.apache.ode.jacob;
 
 import java.lang.reflect.Method;
 
+import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.ChannelListener;
+
 /**
  * Class exposing the JACOB operations.
  * <p>

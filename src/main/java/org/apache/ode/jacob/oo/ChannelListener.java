@@ -16,13 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ode.jacob;
+package org.apache.ode.jacob.oo;
 
-import java.io.Serializable;
+
+import org.apache.ode.jacob.JacobObject;
+
 
 /**
- * Marker interface extended by channel interfaces.
- * TODO: evaluate if an annotation, although slower, would offer a more elegant approach
+ * Base-class for method-list objects. Method-lists objects should extends this
+ * class <em>and</em> implement one <code>Channel</code> interface.
  */
-public interface Channel extends Serializable {
+@SuppressWarnings("serial")
+public abstract class ChannelListener extends JacobObject {
 }

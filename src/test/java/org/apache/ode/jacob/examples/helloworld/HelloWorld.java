@@ -18,12 +18,12 @@
  */
 package org.apache.ode.jacob.examples.helloworld;
 
-import org.apache.ode.jacob.Channel;
 import org.apache.ode.jacob.JacobRunnable;
-import org.apache.ode.jacob.ReceiveProcess;
 import org.apache.ode.jacob.Synch;
 import org.apache.ode.jacob.Val;
 import org.apache.ode.jacob.examples.sequence.Sequence;
+import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.soup.jackson.JacksonExecutionQueueImpl;
 import org.apache.ode.jacob.soup.jackson.JacobModule;
 import org.apache.ode.jacob.vpu.JacobVPU;

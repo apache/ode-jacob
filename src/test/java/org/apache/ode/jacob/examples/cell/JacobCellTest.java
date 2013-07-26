@@ -18,7 +18,7 @@
  */
 package org.apache.ode.jacob.examples.cell;
 
-import static org.apache.ode.jacob.ProcessUtil.receive;
+import static org.apache.ode.jacob.oo.ProcessUtil.receive;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

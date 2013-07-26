@@ -20,9 +20,9 @@ package org.apache.ode.jacob.soup.jackson;
 
 import java.util.Collection;
 
-import org.apache.ode.jacob.Channel;
-import org.apache.ode.jacob.ChannelProxy;
 import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.ChannelProxy;
 import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.vpu.ChannelFactory;
 

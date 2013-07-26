@@ -18,8 +18,8 @@
  */
 package org.apache.ode.jacob.examples.synch;
 
-import org.apache.ode.jacob.Channel;
 import org.apache.ode.jacob.Synch;
+import org.apache.ode.jacob.oo.Channel;
 
 /**
  * DOCUMENTME.

@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Set;
 
+import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.ChannelListener;
 import org.apache.ode.jacob.vpu.JacobVPU;
 
 /**

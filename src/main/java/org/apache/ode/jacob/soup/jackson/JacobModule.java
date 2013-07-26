@@ -18,8 +18,8 @@
  */
 package org.apache.ode.jacob.soup.jackson;
 
-import org.apache.ode.jacob.Channel;
-import org.apache.ode.jacob.ChannelProxy;
+import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.ChannelProxy;
 import org.apache.ode.jacob.soup.Continuation;
 import org.apache.ode.jacob.soup.jackson.JacksonExecutionQueueImpl.ExecutionQueueImplDeserializer;
 import org.apache.ode.jacob.soup.jackson.JacksonExecutionQueueImpl.ExecutionQueueImplSerializer;

@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ode.jacob;
+package org.apache.ode.jacob.oo;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 
 
 @SuppressWarnings("serial")

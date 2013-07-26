@@ -18,7 +18,7 @@
  */
 package org.apache.ode.jacob.soup;
 
-import org.apache.ode.jacob.ChannelListener;
+import org.apache.ode.jacob.oo.ChannelListener;
 
 /**
  * Persistent store representation of an object (i.e. channel read) waiting for

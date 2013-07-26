@@ -24,8 +24,8 @@ import java.lang.reflect.Proxy;
 
 import junit.framework.TestCase;
 
-import org.apache.ode.jacob.Channel;
-import org.apache.ode.jacob.ChannelProxy;
+import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.ChannelProxy;
 
 
 public class ProxyConstructorTimingTest extends TestCase {

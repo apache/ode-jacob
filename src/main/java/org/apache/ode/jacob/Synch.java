@@ -18,6 +18,8 @@
  */
 package org.apache.ode.jacob;
 
+import org.apache.ode.jacob.oo.Channel;
+
 
 /**
  * Synch represents a synchronous invocation callback notification.

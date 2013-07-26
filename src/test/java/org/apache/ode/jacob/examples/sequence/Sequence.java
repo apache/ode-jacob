@@ -19,8 +19,8 @@
 package org.apache.ode.jacob.examples.sequence;
 
 import org.apache.ode.jacob.JacobRunnable;
-import org.apache.ode.jacob.ReceiveProcess;
 import org.apache.ode.jacob.Synch;
+import org.apache.ode.jacob.oo.ReceiveProcess;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
