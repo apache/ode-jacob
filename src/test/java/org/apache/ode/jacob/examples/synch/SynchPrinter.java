@@ -18,13 +18,13 @@
  */
 package org.apache.ode.jacob.examples.synch;
 
-import org.apache.ode.jacob.JacobRunnable;
+import static org.apache.ode.jacob.oo.ProcessUtil.receive;
+
+import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
 import org.apache.ode.jacob.vpu.JacobVPU;
-
-import static org.apache.ode.jacob.oo.ProcessUtil.receive;
 
 /**
  * Example JACOB process illustrating the use of {@link SynchPrint}
@@ -33,7 +33,7 @@ import static org.apache.ode.jacob.oo.ProcessUtil.receive;
  */
 public class SynchPrinter {
 
-    public static final class SystemPrinter extends JacobRunnable {
+    public static final class SystemPrinter extends JacobObject implements Runnable {
         private static final long serialVersionUID = -8516348116865575605L;
 
         private SynchPrint _self;
@@ -55,7 +55,7 @@ public class SynchPrinter {
         }
     }
 
-    public static final class Tester extends JacobRunnable {
+    public static final class Tester extends JacobObject implements Runnable {
         private static final long serialVersionUID = 7899682832271627464L;
 
         public void run() {

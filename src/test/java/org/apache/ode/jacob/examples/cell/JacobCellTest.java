@@ -25,7 +25,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.apache.ode.jacob.JacobRunnable;
+import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.oo.Val;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
 import org.apache.ode.jacob.vpu.JacobVPU;
@@ -58,7 +58,7 @@ public class JacobCellTest extends TestCase {
     }
 
     @SuppressWarnings("serial")
-    static class CellTest1 extends JacobRunnable {
+    static class CellTest1 extends JacobObject implements Runnable {
         public void run() {
             Cell cell = newChannel(Cell.class, "cell");
             Val ret = newChannel(Val.class, "val");

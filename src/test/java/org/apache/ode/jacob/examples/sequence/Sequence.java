@@ -18,7 +18,7 @@
  */
 package org.apache.ode.jacob.examples.sequence;
 
-import org.apache.ode.jacob.JacobRunnable;
+import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;
 
@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Abstract process that executes a number of steps sequentially.
  */
 @SuppressWarnings("serial")
-public abstract class Sequence extends JacobRunnable {
+public abstract class Sequence extends JacobObject implements Runnable {
     private final SequenceData data = new SequenceData();
 
     /**
@@ -62,7 +62,7 @@ public abstract class Sequence extends JacobRunnable {
      * @param done notification after step completion
      * @return runnable process
      */
-    protected abstract JacobRunnable doStep(int step, Synch done);
+    protected abstract Runnable doStep(int step, Synch done);
 
     public static class SequenceData {
         public int _steps;

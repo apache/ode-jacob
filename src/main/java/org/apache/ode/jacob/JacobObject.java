@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelListener;
+import org.apache.ode.jacob.oo.ClassUtil;
 import org.apache.ode.jacob.vpu.JacobVPU;
 
 /**
@@ -32,7 +33,9 @@ import org.apache.ode.jacob.vpu.JacobVPU;
  */
 @SuppressWarnings("serial")
 public abstract class JacobObject implements Serializable {
-    public abstract Set<Method> getImplementedMethods();
+    public Set<Method> getImplementedMethods() {
+    	return null;
+    }
 
     /**
      * Get the unadorned (no package) name of this class.
@@ -56,7 +59,7 @@ public abstract class JacobObject implements Serializable {
      *
      * @param concretion the concretion of a process template
      */
-    protected static void instance(JacobRunnable concretion) {
+    protected static void instance(Runnable concretion) {
         JacobVPU.activeJacobThread().instance(concretion);
     }
 
@@ -111,6 +114,7 @@ public abstract class JacobObject implements Serializable {
 
     public Method getMethod(String methodName) {
         Set<Method> implementedMethods = getImplementedMethods();
+        implementedMethods = implementedMethods == null ? ClassUtil.runMethodSet() : implementedMethods;
         for (Method m : implementedMethods) {
             if (m.getName().equals(methodName)) {
                 return m;

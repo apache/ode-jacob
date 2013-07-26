@@ -19,12 +19,30 @@
 package org.apache.ode.jacob.oo;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.Set;
 
 
 public final class ClassUtil {
+    public static final Method RUN_METHOD;
+    private static final Set<Method> RUN_METHOD_SET = new HashSet<Method>();
+
+    static {
+        try {
+            // Resolve the {@link Runnable#run} method once statically
+            RUN_METHOD = Runnable.class.getMethod("run", new Class[]{});
+            RUN_METHOD_SET.add(RUN_METHOD);
+        } catch (Exception e) {
+            throw new Error("Cannot resolve 'run()' method", e);
+        }
+    }
+
     private ClassUtil() {
         // Utility class
+    }
+
+    public static Set<Method> runMethodSet() {
+    	return RUN_METHOD_SET;
     }
 
     public static Set<Method> getImplementedMethods(Set<Method> methods, Class<?> clazz) {

@@ -42,7 +42,7 @@ public interface JacobThread {
     /**
      * Create a process instance i.e. a concretion of a process abstraction.
      */
-    public void instance(JacobRunnable concretion);
+    public void instance(Runnable concretion);
 
     /**
      * Send a message (object invocation). This method shouldn't really be used

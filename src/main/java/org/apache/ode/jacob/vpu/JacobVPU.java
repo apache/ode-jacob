@@ -25,10 +25,10 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.apache.ode.jacob.JacobObject;
-import org.apache.ode.jacob.JacobRunnable;
 import org.apache.ode.jacob.JacobThread;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelListener;
+import org.apache.ode.jacob.oo.ClassUtil;
 import org.apache.ode.jacob.oo.CompositeProcess;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;
@@ -51,16 +51,6 @@ public final class JacobVPU {
 
     // Thread-local for associating a thread with a VPU. Needs to be stored in a stack to allow reentrance.
     private static final ThreadLocal<Stack<JacobThread>> ACTIVE_THREAD = new ThreadLocal<Stack<JacobThread>>();
-    private static final Method REDUCE_METHOD;
-
-    static {
-        try {
-            // Resolve the {@link JacobRunnable#run} method once statically
-            REDUCE_METHOD = JacobRunnable.class.getMethod("run", new Class[]{});
-        } catch (Exception e) {
-            throw new Error("Cannot resolve 'run()' method", e);
-        }
-    }
 
     /**
      * Persisted cross-VPU state (state of the channels)
@@ -176,9 +166,9 @@ public final class JacobVPU {
      * the injected process. This method is equivalent to the parallel operator,
      * but is intended to be used from outside of an active {@link JacobThread}.
      */
-    public void inject(JacobRunnable concretion) {
+    public void inject(Runnable concretion) {
         LOG.debug("injecting {}", concretion);
-        addReaction(concretion, REDUCE_METHOD, new Class[]{},
+        addReaction((JacobObject)concretion, ClassUtil.RUN_METHOD, new Class[]{},
             (LOG.isInfoEnabled() ? concretion.toString() : null));
     }
 
@@ -270,11 +260,11 @@ public final class JacobVPU {
             }
         }
 
-        public void instance(JacobRunnable template) {
+        public void instance(Runnable template) {
             LOG.trace(">> [{}] : {}", _cycle, template);
 
             _statistics.numReductionsStruct++;
-            addReaction(template, REDUCE_METHOD, new Class[]{}, 
+            addReaction((JacobObject)template, ClassUtil.RUN_METHOD, new Class[]{}, 
                 LOG.isInfoEnabled() ? template.toString() : null);
         }
 

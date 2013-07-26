@@ -18,7 +18,7 @@
  */
 package org.apache.ode.jacob.examples.helloworld;
 
-import org.apache.ode.jacob.JacobRunnable;
+import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.examples.sequence.Sequence;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ReceiveProcess;
@@ -44,13 +44,13 @@ import com.fasterxml.jackson.dataformat.smile.SmileFactory;
  * 
  */
 @SuppressWarnings("serial")
-public class HelloWorld extends JacobRunnable {
+public class HelloWorld extends JacobObject implements Runnable {
 
     public static interface Callback<T, R extends Channel> extends Channel {
         public void invoke(T value, R callback);
     }
 
-    static class ReliablePrinterProcess extends JacobRunnable {
+    static class ReliablePrinterProcess extends JacobObject implements Runnable {
         private Callback<String, Synch> in;
 
         @JsonCreator
@@ -71,7 +71,7 @@ public class HelloWorld extends JacobRunnable {
         }
     }
 
-    static class ReliableStringEmitterProcess extends JacobRunnable {
+    static class ReliableStringEmitterProcess extends JacobObject implements Runnable {
         private String str;
         private Callback<String, Synch> to;
 
@@ -102,7 +102,7 @@ public class HelloWorld extends JacobRunnable {
         }
     }
 
-    static class PrinterProcess extends JacobRunnable {
+    static class PrinterProcess extends JacobObject implements Runnable {
         private Val _in;
 
         @JsonCreator
@@ -122,7 +122,7 @@ public class HelloWorld extends JacobRunnable {
         }
     }
 
-    static class StringEmitterProcess extends JacobRunnable {
+    static class StringEmitterProcess extends JacobObject implements Runnable {
         private String str;
         private Val to;
 
@@ -137,7 +137,7 @@ public class HelloWorld extends JacobRunnable {
         }
     }
 
-    static class ForwarderProcess extends JacobRunnable {
+    static class ForwarderProcess extends JacobObject implements Runnable {
         private Val in;
         private Val out;
 
@@ -224,11 +224,11 @@ public class HelloWorld extends JacobRunnable {
 		}
 
 		@Override
-		protected JacobRunnable doStep(int step, Synch done) {
+		protected Runnable doStep(int step, Synch done) {
 			return new SequenceItemEmitter(greetings[step], done, out);
         }
 
-		static class SequenceItemEmitter extends JacobRunnable {
+		static class SequenceItemEmitter extends JacobObject implements Runnable {
 			private final String string;
 			private final Synch done;
 			private final Val out;
