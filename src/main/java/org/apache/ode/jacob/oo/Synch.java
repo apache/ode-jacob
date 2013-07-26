@@ -16,16 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ode.jacob;
+package org.apache.ode.jacob.oo;
 
-import org.apache.ode.jacob.oo.Channel;
 
 
 /**
- * Generic return-value channel type.
+ * Synch represents a synchronous invocation callback notification.
+ * <p>
+ * It is the only allowable return type (other than "void") for JACOB objects.
+ *
+ * @author Maciej Szefler <a href="mailto:mbs@fivesight.com">mbs</a>
  */
-public interface Val extends Channel {
 
-	public void val(Object retVal);
+public interface Synch extends Channel {
+
+	public void ret();
 
 }

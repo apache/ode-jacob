@@ -26,7 +26,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.apache.ode.jacob.JacobRunnable;
-import org.apache.ode.jacob.Val;
+import org.apache.ode.jacob.oo.Val;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
 import org.apache.ode.jacob.vpu.JacobVPU;
 

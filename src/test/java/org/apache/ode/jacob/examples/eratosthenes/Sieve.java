@@ -19,8 +19,8 @@
 package org.apache.ode.jacob.examples.eratosthenes;
 
 import org.apache.ode.jacob.JacobRunnable;
-import org.apache.ode.jacob.Synch;
 import org.apache.ode.jacob.oo.ReceiveProcess;
+import org.apache.ode.jacob.oo.Synch;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
 import org.apache.ode.jacob.vpu.JacobVPU;
 

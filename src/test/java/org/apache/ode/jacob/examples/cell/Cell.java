@@ -19,8 +19,8 @@
 package org.apache.ode.jacob.examples.cell;
 
 
-import org.apache.ode.jacob.Val;
 import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.Val;
 
 /**
  * Channel type for a cell. The channel allows reading of and setting the values of a cell.

@@ -19,8 +19,8 @@
 package org.apache.ode.jacob.examples.cell;
 
 import org.apache.ode.jacob.JacobRunnable;
-import org.apache.ode.jacob.Val;
 import org.apache.ode.jacob.oo.ReceiveProcess;
+import org.apache.ode.jacob.oo.Val;
 
 /**
  * Cell process template Java representation. This class is equivalent to the

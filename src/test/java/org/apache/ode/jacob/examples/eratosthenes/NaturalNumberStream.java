@@ -19,8 +19,8 @@
 package org.apache.ode.jacob.examples.eratosthenes;
 
 
-import org.apache.ode.jacob.Synch;
 import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.Synch;
 
 /**
  * DOCUMENTME.
