@@ -26,6 +26,8 @@ import java.util.Stack;
 
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.JacobThread;
+import org.apache.ode.jacob.Message;
+import org.apache.ode.jacob.MessageType;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelListener;
 import org.apache.ode.jacob.oo.ClassUtil;
@@ -425,11 +427,19 @@ public final class JacobVPU {
             stackThread();
             long ctime = System.currentTimeMillis();
             try {
-                _method.invoke(_methodBody instanceof ReceiveProcess ? 
-                    ((ReceiveProcess)_methodBody).getReceiver() : _methodBody, args);
+            	if (_methodBody instanceof ReceiveProcess) {
+            		Message msg = new Message(ClassUtil.getMessageType(_method));
+            		msg.setBody(args);
+
+            		((ReceiveProcess)_methodBody).onMessage(msg);
+            		// _method.invoke(((ReceiveProcess)_methodBody).getReceiver(), args);
+            	} else {
+            		((Runnable)_methodBody).run();
+            	}
                 if (synchChannel != null) {
                     synchChannel.ret();
                 }
+/*
             } catch (IllegalAccessException iae) {
                 throw new RuntimeException("MethodNotAccessible: " + _method.getName() + " in " + _method.getDeclaringClass().getName(), iae);
             } catch (InvocationTargetException e) {
@@ -437,7 +447,8 @@ public final class JacobVPU {
                 throw (target instanceof RuntimeException)
                     ? (RuntimeException) target
                     : new RuntimeException("ClientMethodException: " + _method.getName() + " in " + _methodBody.getClass().getName(), target);
-            } finally {
+*/
+			} finally {
                 ctime = System.currentTimeMillis() - ctime;
                 _statistics.totalClientTimeMs += ctime;
                 unstackThread();

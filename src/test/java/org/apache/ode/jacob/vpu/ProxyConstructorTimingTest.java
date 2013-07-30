@@ -24,8 +24,10 @@ import java.lang.reflect.Proxy;
 
 import junit.framework.TestCase;
 
+import org.apache.ode.jacob.MessageType;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelProxy;
+import org.apache.ode.jacob.oo.MessageHandler;
 
 
 public class ProxyConstructorTimingTest extends TestCase {
@@ -102,7 +104,8 @@ public class ProxyConstructorTimingTest extends TestCase {
     }
     
     public interface Greeter extends Channel {
-        String hello(String name);
+    	public interface HelloMessage extends MessageType {}
+    	@MessageHandler(HelloMessage.class) String hello(String name);
     }
     
     @SuppressWarnings("serial")

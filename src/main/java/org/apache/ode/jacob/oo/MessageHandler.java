@@ -18,20 +18,25 @@
  */
 package org.apache.ode.jacob.oo;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.apache.ode.jacob.MessageType;
 
 
-
 /**
- * Synch represents a synchronous invocation callback notification.
- * <p>
- * It is the only allowable return type (other than "void") for JACOB objects.
- *
+ * Marks a {@link Channel} method as handling a {@link Message}
+ *  of a certaing {@link MessageType}
+ *  
+ *  @see Message#getType()
  */
 
-public interface Synch extends Channel {
-	public interface RetMessage extends MessageType {}
-
-	@MessageHandler(RetMessage.class) public void ret();
-
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Target({ElementType.METHOD})
+public @interface MessageHandler {
+	Class<? extends MessageType> value();
 }

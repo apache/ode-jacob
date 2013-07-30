@@ -16,22 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ode.jacob.oo;
-
-import org.apache.ode.jacob.MessageType;
-
+package org.apache.ode.jacob;
 
 
 /**
- * Synch represents a synchronous invocation callback notification.
- * <p>
- * It is the only allowable return type (other than "void") for JACOB objects.
- *
+ * TODO: Document...
  */
 
-public interface Synch extends Channel {
-	public interface RetMessage extends MessageType {}
-
-	@MessageHandler(RetMessage.class) public void ret();
-
+public interface MessageChannel {
+	void onMessage(Message msg);
 }

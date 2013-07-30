@@ -18,7 +18,9 @@
  */
 package org.apache.ode.jacob.examples.synch;
 
+import org.apache.ode.jacob.MessageType;
 import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.MessageHandler;
 import org.apache.ode.jacob.oo.Synch;
 
 /**
@@ -28,7 +30,8 @@ import org.apache.ode.jacob.oo.Synch;
  * @author Maciej Szefler <a href="mailto:mbs@fivesight.com">mbs</a>
  */
 public interface SynchPrint extends Channel {
+	public interface SynchPrintMessage extends MessageType {}
 
-	public Synch print(String msg);
+	@MessageHandler(SynchPrintMessage.class) public Synch print(String msg);
 
 }

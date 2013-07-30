@@ -19,7 +19,9 @@
 package org.apache.ode.jacob.examples.eratosthenes;
 
 
+import org.apache.ode.jacob.MessageType;
 import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.MessageHandler;
 import org.apache.ode.jacob.oo.Synch;
 
 /**
@@ -30,7 +32,8 @@ import org.apache.ode.jacob.oo.Synch;
  * @author Maciej Szefler <a href="mailto:mbs@fivesight.com">mbs</a>
  */
 public interface NaturalNumberStream extends Channel {
+	public interface ValMessage extends MessageType {}
 
-	public void val(int n, Synch ret);
+	@MessageHandler(ValMessage.class) public void val(int n, Synch ret);
 
 }

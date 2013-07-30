@@ -22,6 +22,8 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.ode.jacob.MessageType;
+
 
 public final class ClassUtil {
     public static final Method RUN_METHOD;
@@ -41,6 +43,10 @@ public final class ClassUtil {
         // Utility class
     }
 
+    public static Class<? extends MessageType> getMessageType(Method channelMethod) {
+    	MessageHandler handler = channelMethod.getAnnotation(MessageHandler.class);
+    	return handler == null ? null : handler.value();
+    }
     public static Set<Method> runMethodSet() {
     	return RUN_METHOD_SET;
     }

@@ -19,8 +19,10 @@
 package org.apache.ode.jacob.examples.helloworld;
 
 import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.MessageType;
 import org.apache.ode.jacob.examples.sequence.Sequence;
 import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.oo.MessageHandler;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;
 import org.apache.ode.jacob.oo.Val;
@@ -47,7 +49,10 @@ import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 public class HelloWorld extends JacobObject implements Runnable {
 
     public static interface Callback<T, R extends Channel> extends Channel {
-        public void invoke(T value, R callback);
+    	public interface CallbackMessage extends MessageType {}
+
+        @MessageHandler(CallbackMessage.class) public void invoke(T value, R callback);
+
     }
 
     static class ReliablePrinterProcess extends JacobObject implements Runnable {
