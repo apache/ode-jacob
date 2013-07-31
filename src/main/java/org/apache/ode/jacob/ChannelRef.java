@@ -16,21 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ode.jacob.examples.synch;
-
-
-import org.apache.ode.jacob.oo.Channel;
-import org.apache.ode.jacob.oo.Synch;
+package org.apache.ode.jacob;
 
 
 /**
- * DOCUMENTME.
- * <p>Created on Mar 4, 2004 at 4:21:03 PM.</p>
- *
- * @author Maciej Szefler <a href="mailto:mbs@fivesight.com">mbs</a>
+ * TODO: Document...
  */
-public interface SynchPrint extends Channel {
 
-	public Synch print(String msg);
-
+public interface ChannelRef {
 }

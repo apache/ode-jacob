@@ -19,28 +19,24 @@
 package org.apache.ode.jacob.examples.cell;
 
 
-import org.apache.ode.jacob.MessageType;
 import org.apache.ode.jacob.oo.Channel;
-import org.apache.ode.jacob.oo.MessageHandler;
 import org.apache.ode.jacob.oo.Val;
 
 /**
  * Channel type for a cell. The channel allows reading of and setting the values of a cell.
  */
 public interface Cell extends Channel {
-	public interface ReadMessage extends MessageType {}
-	public interface WriteMessage extends MessageType {}
 
     /**
      * Read the value of the cell.
      * @param replyTo channel to which the value of the cell is sent
      */
-	@MessageHandler(ReadMessage.class) public void read(Val replyTo);
+	public void read(Val replyTo);
 
     /**
      * Write the value of the cell.
      * @param newVal new value of the cell
      */
-	@MessageHandler(WriteMessage.class) public void write(Object newVal);
+	public void write(Object newVal);
 
 }

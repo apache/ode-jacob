@@ -18,9 +18,6 @@
  */
 package org.apache.ode.jacob.oo;
 
-import org.apache.ode.jacob.MessageType;
-
-
 
 /**
  * Synch represents a synchronous invocation callback notification.
@@ -30,8 +27,7 @@ import org.apache.ode.jacob.MessageType;
  */
 
 public interface Synch extends Channel {
-	public interface RetMessage extends MessageType {}
 
-	@MessageHandler(RetMessage.class) public void ret();
+	public void ret();
 
 }

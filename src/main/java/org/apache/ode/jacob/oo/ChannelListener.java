@@ -19,14 +19,11 @@
 package org.apache.ode.jacob.oo;
 
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Set;
 
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.MessageChannel;
-import org.apache.ode.jacob.MessageType;
 
 
 /**
@@ -37,21 +34,14 @@ import org.apache.ode.jacob.MessageType;
 public abstract class ChannelListener extends JacobObject implements MessageChannel {
 
 	public void onMessage(Message msg) {
-		Class<? extends MessageType> type = msg.getType();
-
-		Set<Method> methods = this.getImplementedMethods();
-		for (Method m : methods) {
-			if (type != null && type.equals(ClassUtil.getMessageType(m))) {
-				if (this instanceof ReceiveProcess) {
-					try {
-						m.invoke(((ReceiveProcess)this).getReceiver(), (Object[])msg.getBody());
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				break;
+		Method action = ClassUtil.findActionMethod(getImplementedMethods()).evaluate(msg, Method.class);
+		try {
+			if (action != null && this instanceof ReceiveProcess) {
+			    action.invoke(((ReceiveProcess)this).getReceiver(), (Object[])msg.getBody());
 			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

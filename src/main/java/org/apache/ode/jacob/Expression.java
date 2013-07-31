@@ -21,7 +21,9 @@ package org.apache.ode.jacob;
 
 /**
  * TODO: Document...
+ * TODO: should anything be final here? the class itself?
  */
 
-public interface MessageType {
+public interface Expression {
+	<T> T evaluate(Message message, Class<T> type);
 }

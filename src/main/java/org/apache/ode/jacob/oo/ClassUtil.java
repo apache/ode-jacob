@@ -22,7 +22,8 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.ode.jacob.MessageType;
+import org.apache.ode.jacob.Expression;
+import org.apache.ode.jacob.Message;
 
 
 public final class ClassUtil {
@@ -43,14 +44,31 @@ public final class ClassUtil {
         // Utility class
     }
 
-    public static Class<? extends MessageType> getMessageType(Method channelMethod) {
-    	MessageHandler handler = channelMethod.getAnnotation(MessageHandler.class);
-    	return handler == null ? null : handler.value();
-    }
     public static Set<Method> runMethodSet() {
     	return RUN_METHOD_SET;
     }
 
+    public static String getMessageType(Method channelMethod) {
+    	MessageHandler handler = channelMethod.getAnnotation(MessageHandler.class);
+    	return handler == null ? channelMethod.getClass().getName() + "." + channelMethod.getName() : handler.value();
+    }
+
+    public static Expression findActionMethod(final Set<Method> implementedMethods) {
+    	return new Expression() {
+			@SuppressWarnings("unchecked")
+			public <T> T evaluate(Message message, Class<T> type) {
+				String action = message.getAction();
+				if (Method.class.equals(type) && action != null) {
+					for (Method m : implementedMethods) {
+						if (action.equals(ClassUtil.getMessageType(m))) {
+							return (T)m;
+						}
+					}
+				}
+				return null;
+			}
+    	};
+    }
     public static Set<Method> getImplementedMethods(Set<Method> methods, Class<?> clazz) {
         // TODO: this can be optimized (some 20 times faster in my tests) by keeping a private 
         //  map of interfaces to methods: Map<Class<?>, Method[]> and just do lookups

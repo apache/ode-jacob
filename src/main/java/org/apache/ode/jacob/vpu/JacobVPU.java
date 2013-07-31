@@ -27,7 +27,6 @@ import java.util.Stack;
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.JacobThread;
 import org.apache.ode.jacob.Message;
-import org.apache.ode.jacob.MessageType;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelListener;
 import org.apache.ode.jacob.oo.ClassUtil;
@@ -428,7 +427,7 @@ public final class JacobVPU {
             long ctime = System.currentTimeMillis();
             try {
             	if (_methodBody instanceof ReceiveProcess) {
-            		Message msg = new Message(ClassUtil.getMessageType(_method));
+            		Message msg = new Message(null, null, ClassUtil.getMessageType(_method));
             		msg.setBody(args);
 
             		((ReceiveProcess)_methodBody).onMessage(msg);

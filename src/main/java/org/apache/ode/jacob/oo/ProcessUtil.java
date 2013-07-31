@@ -49,4 +49,5 @@ public final class ProcessUtil {
     	//  once we fix serialization, this can be simplified significantly via a dsl
     	return new ReceiveProcess() {}.setChannel(proxy).setReceiver(listener);
     }
+
 }

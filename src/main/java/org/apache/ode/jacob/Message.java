@@ -27,33 +27,57 @@ import java.util.concurrent.ConcurrentHashMap;
  * TODO: should anything be final here? the class itself?
  */
 
-public final class Message {
-	private Class<? extends MessageType> type;
-	private MessageChannel reply;
-	private Map<String, Object> headers;
+public class Message {
+	private long id;
+    private ChannelRef to;	
+    private ChannelRef replyTo;
+    private String action;
+    private Map<String, Object> headers;
 	private Object body;
 
 	public Message() {
-		// TODO: do we always need headers?
+		id = 0;	// TODO: generate id
+		// TODO: always allocating headers may not be a good idea
+		//  checking for non-null headers in the getters below is 
+		//  not great either; should look into a better option later
+		//  after finishing pi-calculus refactoring and running some
+		//  perf tests
 		headers = new ConcurrentHashMap<String, Object>();
 	}
-	public Message(Class<? extends MessageType> type) {
+
+	public Message(ChannelRef to, ChannelRef replyTo, String action) {
 		this();
-		this.type = type;
+		this.to = to;
+		this.replyTo = replyTo;
+		this.action = action;
 	}
 
-	public Class<? extends MessageType> getType() {
-		return type;
+	// TODO: add any other convenience methods like addHeader, removeHeader? 
+	public long getId() {
+		return id;
 	}
-	public void setType(Class<? extends MessageType> type) {
-		this.type = type;
+	public void setId(long id) {
+		this.id = id;
 	}
-	public MessageChannel getReply() {
-		return reply;
+	public ChannelRef getTo() {
+		return to;
 	}
-	public void setReply(MessageChannel reply) {
-		this.reply = reply;
+	public void setTo(ChannelRef to) {
+		this.to = to;
 	}
+	public ChannelRef getReplyTo() {
+		return replyTo;
+	}
+	public void setReplyTo(ChannelRef replyTo) {
+		this.replyTo = replyTo;
+	}
+	public String getAction() {
+		return action;
+	}
+	public void setAction(String action) {
+		this.action = action;
+	}
+
 	public Map<String, Object> getHeaders() {
 		return headers;
 	}
@@ -70,5 +94,4 @@ public final class Message {
 	public boolean containsHeader(String header) {
 		return headers.containsKey(header);
 	}
-	// TODO: add any other convenience methods like addHeader, removeHeader? 
 }

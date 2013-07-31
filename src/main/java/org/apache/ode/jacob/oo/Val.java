@@ -18,16 +18,12 @@
  */
 package org.apache.ode.jacob.oo;
 
-import org.apache.ode.jacob.MessageType;
-
-
 
 /**
  * Generic return-value channel type.
  */
 public interface Val extends Channel {
-	public interface ValMessage extends MessageType {}
 
-	@MessageHandler(ValMessage.class) public void val(Object retVal);
+	public void val(Object retVal);
 
 }

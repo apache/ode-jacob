@@ -24,12 +24,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.ode.jacob.MessageType;
-
 
 /**
- * Marks a {@link Channel} method as handling a {@link Message}
- *  of a certaing {@link MessageType}
+ * Marks a {@link Channel} method as performing a certain
+ *  {@link Message#getAction()} on a {@link Message}
  *  
  *  @see Message#getType()
  */
@@ -38,5 +36,5 @@ import org.apache.ode.jacob.MessageType;
 @Documented
 @Target({ElementType.METHOD})
 public @interface MessageHandler {
-	Class<? extends MessageType> value();
+	String value();
 }
