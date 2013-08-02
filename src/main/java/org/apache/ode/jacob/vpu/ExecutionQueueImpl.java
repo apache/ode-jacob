@@ -45,6 +45,7 @@ import org.apache.ode.jacob.IndexedObject;
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelListener;
+import org.apache.ode.jacob.oo.ClassUtil;
 import org.apache.ode.jacob.soup.Comm;
 import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.soup.CommGroup;
@@ -293,7 +294,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         // Write out the reactions.
         sos.writeInt(_reactions.size());
         for (Continuation c : _reactions) {
-            sos.writeObject(c.getClosure());
+            sos.writeObject(ClassUtil.getMessageClosure(c.getMessage()));
             sos.writeUTF(c.getMethod().getName());
             sos.writeInt(c.getArgs() == null ? 0 : c.getArgs().length);
             for (int j = 0; c.getArgs() != null && j < c.getArgs().length; ++j)

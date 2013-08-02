@@ -18,21 +18,22 @@
  */
 package org.apache.ode.jacob.oo;
 
-import java.io.Serializable;
+import org.apache.ode.jacob.ChannelRef;
+
 
 /**
- *  Marker interface extended by channel interfaces.
- *  TODO: Document how the Channel interface could be extended.
- *   - a concrete Channel should be defined as an interface
- *   - one should not overload Method names
- *   - a concrete Channel could be further extended, but 
- *     then it must not redeclare a parent Channel method
- *   etc...
- *   
- *   Correctness of Channel definition should be established via
- *   static analysis and will be assumed at runtime, avoiding
- *   unnecessary checks for situation like deep inheritance 
- *   hierarchies.
+ * TODO: Document...
  */
-public interface Channel extends Serializable {
+
+public class ChannelChannelRef implements ChannelRef {
+	private final Channel ref;
+	
+	public ChannelChannelRef(Channel channel) {
+		ref = channel;
+	}
+
+	public Channel getRef() {
+		return ref;
+	}
+
 }

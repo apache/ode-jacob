@@ -20,6 +20,7 @@ package org.apache.ode.jacob.soup.jackson;
 
 import java.io.IOException;
 
+import org.apache.ode.jacob.oo.ClassUtil;
 import org.apache.ode.jacob.soup.Continuation;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -63,7 +64,7 @@ public class ContinuationSerializer extends StdSerializer<Continuation> {
     private void serializeContents(Continuation value, JsonGenerator jgen,
             SerializerProvider provider) throws JsonGenerationException, IOException {
 
-        jgen.writeObjectField("target", value.getClosure());
+        jgen.writeObjectField("target", ClassUtil.getMessageClosure(value.getMessage()));
         jgen.writeStringField("method", value.getMethod().getName());
         jgen.writeObjectField("args", value.getArgs());
     }

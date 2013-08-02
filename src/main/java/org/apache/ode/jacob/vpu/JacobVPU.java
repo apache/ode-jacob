@@ -248,7 +248,7 @@ public final class JacobVPU {
         JacobThreadImpl(Continuation rqe) {
             assert rqe != null;
 
-            _methodBody = rqe.getClosure();
+            _methodBody = ClassUtil.getMessageClosure(rqe.getMessage());
             _args = rqe.getArgs();
             _source = rqe.getDescription();
             _method = rqe.getMethod();
@@ -427,7 +427,7 @@ public final class JacobVPU {
             long ctime = System.currentTimeMillis();
             try {
             	if (_methodBody instanceof ReceiveProcess) {
-            		Message msg = new Message(null, null, ClassUtil.getMessageType(_method));
+            		Message msg = new Message(null, null, ClassUtil.getActionForMethod(_method));
             		msg.setBody(args);
 
             		((ReceiveProcess)_methodBody).onMessage(msg);

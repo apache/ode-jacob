@@ -22,18 +22,25 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.Expression;
+import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public final class ClassUtil {
     public static final Method RUN_METHOD;
+    public static final String RUN_METHOD_NAME = "run";
+    public static final String RUN_METHOD_ACTION = "java.lang.Runnable#run";
     private static final Set<Method> RUN_METHOD_SET = new HashSet<Method>();
+    private static final Logger LOG = LoggerFactory.getLogger(ClassUtil.class);
 
     static {
         try {
             // Resolve the {@link Runnable#run} method once statically
-            RUN_METHOD = Runnable.class.getMethod("run", new Class[]{});
+            RUN_METHOD = Runnable.class.getMethod(RUN_METHOD_NAME, new Class[]{});
             RUN_METHOD_SET.add(RUN_METHOD);
         } catch (Exception e) {
             throw new Error("Cannot resolve 'run()' method", e);
@@ -48,9 +55,60 @@ public final class ClassUtil {
     	return RUN_METHOD_SET;
     }
 
-    public static String getMessageType(Method channelMethod) {
+    public static Message createMessage(JacobObject target, Method method, Object[] args) {
+    	Message message = new Message();
+        message.setTo(new JacobObjectChannelRef(target));
+        message.setAction(ClassUtil.getActionForMethod(method));
+        message.setBody(args);
+        return message;
+    }
+    public static String getActionForMethod(Method channelMethod) {
+    	if (channelMethod == null) {
+    		return null;
+    	}
     	MessageHandler handler = channelMethod.getAnnotation(MessageHandler.class);
-    	return handler == null ? channelMethod.getClass().getName() + "." + channelMethod.getName() : handler.value();
+    	if (handler != null) {
+    		return handler.value();
+    	}
+    	Class<?> clazz = channelMethod.getDeclaringClass();
+    	if (Runnable.class.isAssignableFrom(clazz) 
+    		&& channelMethod.getName() == "run"
+    		&& channelMethod.getParameterTypes().length == 0) {
+    		return RUN_METHOD_ACTION;
+    	}
+    	if (!Channel.class.isAssignableFrom(clazz)) {
+    		LOG.trace("Action '{}' can only be defined for a Channel extension", channelMethod.getName());
+    		return null;
+    	}
+		LOG.trace("Probing Channel class '{}' for declaration of method '{}'", clazz.getName(), channelMethod.getName());
+		for (Class<?> c : clazz.getInterfaces()) {
+			String action = getChannelMethodAction(c, channelMethod);
+			if (action != null) {
+				return action;
+			}
+		}
+		// ... if clazz is a Channel interface itself 
+    	return getChannelMethodAction(clazz, channelMethod);
+    }
+
+    /**
+     * @param clazz
+     * @param method
+     * @return
+     * 
+     * The default action associated with a Channel method is defined as Class#method
+     * following a convention similar to javadoc.
+     */
+    private static String getChannelMethodAction(Class<?> clazz, Method method) {
+		if (Channel.class.isAssignableFrom(clazz)) {
+			try {
+				Method m = clazz.getMethod(method.getName(), method.getParameterTypes());
+    	    	return m.getDeclaringClass().getName() + "#" + m.getName();
+			} catch (SecurityException e) {		// ignore
+			} catch (NoSuchMethodException e) {	// ignore
+			}
+		}
+		return null;
     }
 
     public static Expression findActionMethod(final Set<Method> implementedMethods) {
@@ -60,7 +118,7 @@ public final class ClassUtil {
 				String action = message.getAction();
 				if (Method.class.equals(type) && action != null) {
 					for (Method m : implementedMethods) {
-						if (action.equals(ClassUtil.getMessageType(m))) {
+						if (action.equals(ClassUtil.getActionForMethod(m))) {
 							return (T)m;
 						}
 					}
@@ -69,6 +127,26 @@ public final class ClassUtil {
 			}
     	};
     }
+
+    public static Expression target() {
+    	return new Expression() {
+			@SuppressWarnings("unchecked")
+			public <T> T evaluate(Message message, Class<T> type) {
+				ChannelRef ref = message.getTo();
+				if (JacobObject.class.equals(type) && ref instanceof JacobObjectChannelRef) {
+					return (T)((JacobObjectChannelRef)ref).getRef();
+				} else if (Channel.class.equals(type) && ref instanceof ChannelChannelRef) {
+					return (T)((ChannelChannelRef)ref).getRef();
+				}
+				return null;
+			}
+    	};
+    }
+
+    public static JacobObject getMessageClosure(Message message) {
+    	return target().evaluate(message, JacobObject.class);
+    }
+
     public static Set<Method> getImplementedMethods(Set<Method> methods, Class<?> clazz) {
         // TODO: this can be optimized (some 20 times faster in my tests) by keeping a private 
         //  map of interfaces to methods: Map<Class<?>, Method[]> and just do lookups

@@ -19,6 +19,8 @@
 package org.apache.ode.jacob.soup;
 
 import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.Message;
+import org.apache.ode.jacob.oo.ClassUtil;
 
 import java.lang.reflect.Method;
 
@@ -29,35 +31,38 @@ import java.lang.reflect.Method;
  * @author Maciej Szefler <a href="mailto:mbs@fivesight.com">mbs</a>
  */
 public class Continuation extends ExecutionQueueObject {
-  private JacobObject _closure;
-  private Method _method;
-  private Object[] _args;
+    private final Message message;
+    private JacobObject _closure;
+    private Method _method;
+    private Object[] _args;
 
-  public Continuation(JacobObject target, Method method, Object[] args) {
-    _closure = target;
-    _method = method;
-    _args = args;
-  }
+    public Continuation(JacobObject target, Method method, Object[] args) {
+        _closure = target;
+        _method = method;
+        _args = args;
+        
+        message = ClassUtil.createMessage(target, method, args);
+    }
 
-  public JacobObject getClosure() {
-    return _closure;
-  }
+    public Method getMethod() {
+        return _method;
+    }
 
-  public Method getMethod() {
-    return _method;
-  }
+    public Object[] getArgs() {
+        return _args;
+    }
 
-  public Object[] getArgs() {
-    return _args;
-  }
+    public Message getMessage() {
+	    return message;
+    }
 
-  public String toString () {
-    return new StringBuilder("{")
-        .append(this.getClass().getSimpleName())
-        .append(" closure=").append(_closure)
-        .append(", method=").append(_method.getName())
-        .append(", args=").append(_args)
-        .append("}").toString();
-  }
+    public String toString () {
+        return new StringBuilder("{")
+            .append(this.getClass().getSimpleName())
+            .append(" closure=").append(_closure)
+            .append(", method=").append(_method.getName())
+            .append(", args=").append(_args)
+            .append("}").toString();
+    }
 
 }
