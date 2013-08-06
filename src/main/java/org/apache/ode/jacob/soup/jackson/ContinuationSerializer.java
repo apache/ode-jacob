@@ -65,7 +65,7 @@ public class ContinuationSerializer extends StdSerializer<Continuation> {
             SerializerProvider provider) throws JsonGenerationException, IOException {
 
         jgen.writeObjectField("target", ClassUtil.getMessageClosure(value.getMessage()));
-        jgen.writeStringField("method", value.getMethod().getName());
-        jgen.writeObjectField("args", value.getArgs());
+        jgen.writeStringField("method", value.getMessage().getAction());
+        jgen.writeObjectField("args", value.getMessage().getBody());
     }
 }

@@ -55,13 +55,15 @@ public final class ClassUtil {
     	return RUN_METHOD_SET;
     }
 
-    public static Message createMessage(JacobObject target, Method method, Object[] args) {
+    public static Message createMessage(JacobObject target, String action, Object[] args, Channel replyTo) {
     	Message message = new Message();
         message.setTo(new JacobObjectChannelRef(target));
-        message.setAction(ClassUtil.getActionForMethod(method));
+        message.setReplyTo(replyTo == null ? null : new ChannelChannelRef(replyTo));
+        message.setAction(action);
         message.setBody(args);
         return message;
     }
+
     public static String getActionForMethod(Method channelMethod) {
     	if (channelMethod == null) {
     		return null;

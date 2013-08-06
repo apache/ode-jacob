@@ -164,7 +164,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
 
                 CommSend commSend = (CommSend) comm;
                 MessageFrame mframe = new MessageFrame(commGroupFrame, chnlFrame, commSend.getMethod().getName(),
-                        commSend.getArgs());
+                        commSend.getArgs(), commSend.getReplyChannel());
                 commGroupFrame.commFrames.add(mframe);
                 chnlFrame.msgFrames.add(mframe);
             } else if (comm instanceof CommRecv) {
@@ -249,7 +249,8 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             for (int j = 0; j < numArgs; ++j) {
                 args[j] = sis.readObject();
             }
-            _reactions.add(new Continuation(closure, method, args));
+            Channel replyTo = (Channel) sis.readObject();
+            _reactions.add(new Continuation(closure, ClassUtil.getActionForMethod(method), args, replyTo));
         }
 
         int numChannels = sis.readInt();
@@ -295,10 +296,12 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         sos.writeInt(_reactions.size());
         for (Continuation c : _reactions) {
             sos.writeObject(ClassUtil.getMessageClosure(c.getMessage()));
-            sos.writeUTF(c.getMethod().getName());
-            sos.writeInt(c.getArgs() == null ? 0 : c.getArgs().length);
-            for (int j = 0; c.getArgs() != null && j < c.getArgs().length; ++j)
-                sos.writeObject(c.getArgs()[j]);
+            sos.writeUTF(c.getMessage().getAction());
+            Object[] args = (Object[])c.getMessage().getBody();
+            sos.writeInt(args == null ? 0 : args.length);
+            for (Object a : args) {
+                sos.writeObject(a);
+            }
         }
 
         sos.writeInt(_channels.values().size());
@@ -385,8 +388,8 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             MessageFrame mframe = cframe.msgFrames.iterator().next();
             ObjectFrame oframe = cframe.objFrames.iterator().next();
 
-            Continuation continuation = new Continuation(oframe._continuation, oframe._continuation
-                    .getMethod(mframe.method), mframe.args);
+            Continuation continuation = new Continuation(oframe._continuation, 
+            		ClassUtil.getActionForMethod(oframe._continuation.getMethod(mframe.method)), mframe.args, mframe.replyChannel);
             if (LOG.isInfoEnabled()) {
                 continuation.setDescription(channel + " ? {...} | " + channel + " ! " + mframe.method + "(...)");
             }
@@ -612,15 +615,17 @@ public class ExecutionQueueImpl implements ExecutionQueue {
 
         String method;
         Object[] args;
+        Channel replyChannel;
 
         // Used for deserialization
         public MessageFrame() {
         }
 
-        public MessageFrame(CommGroupFrame commFrame, ChannelFrame channelFrame, String method, Object[] args) {
+        public MessageFrame(CommGroupFrame commFrame, ChannelFrame channelFrame, String method, Object[] args, Channel replyChannel) {
             super(commFrame, channelFrame);
             this.method = method;
             this.args = args == null ? new Class[]{} : args;
+            this.replyChannel = replyChannel;
         }
 
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {

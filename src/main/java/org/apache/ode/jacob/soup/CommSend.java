@@ -20,6 +20,8 @@ package org.apache.ode.jacob.soup;
 
 import java.lang.reflect.Method;
 
+import org.apache.ode.jacob.oo.Channel;
+
 /**
  * Persistent store representation of a message (i.e. method application /
  * channel write) waiting for a corresponding object (i.e. channel read). This
@@ -31,29 +33,31 @@ import java.lang.reflect.Method;
  */
 public class CommSend extends Comm {
 
-    private Object[] _args;
-
     private Method _method;
+    private Object[] _args;
+    private Channel replyChannel;
 
     protected CommSend() {
     }
 
-    public CommSend(CommChannel chnl, Method method, Object[] args) {
+    public CommSend(CommChannel chnl, Method method, Object[] args, Channel replyChannel) {
         super(null, chnl);
-        _args = args;
         _method = method;
+        _args = args;
+        this.replyChannel = replyChannel;
     }
 
     public Method getMethod() {
         return _method;
     }
 
-    /**
-     * Get the arguments for the method application.
-     */
     public Object[] getArgs() {
         return _args;
     }
+
+    public Channel getReplyChannel() {
+		return replyChannel;
+	}
 
     public String toString() {
         StringBuffer buf = new StringBuffer(getChannel().toString());
@@ -65,4 +69,5 @@ public class CommSend extends Comm {
         buf.append(')');
         return buf.toString();
     }
+
 }

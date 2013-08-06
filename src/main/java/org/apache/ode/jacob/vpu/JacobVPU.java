@@ -144,10 +144,10 @@ public final class JacobVPU {
     /**
      * Add an item to the run queue.
      */
-    public void addReaction(JacobObject jo, Method method, Object[] args, String desc) {
-        LOG.trace(">> addReaction (jo={}, method={}, args={}, desc={})", jo, method, args, desc);
+    public void addReaction(JacobObject jo, String action, Object[] args, String desc) {
+        LOG.trace(">> addReaction (jo={}, method={}, args={}, desc={})", jo, action, args, desc);
 
-        Continuation continuation = new Continuation(jo, method, args);
+        Continuation continuation = new Continuation(jo, action, args, null);
         continuation.setDescription(desc);
         _executionQueue.enqueueReaction(continuation);
         ++_statistics.runQueueEntries;
@@ -169,7 +169,7 @@ public final class JacobVPU {
      */
     public void inject(Runnable concretion) {
         LOG.debug("injecting {}", concretion);
-        addReaction((JacobObject)concretion, ClassUtil.RUN_METHOD, new Class[]{},
+        addReaction((JacobObject)concretion, ClassUtil.RUN_METHOD_ACTION, new Class[]{},
             (LOG.isInfoEnabled() ? concretion.toString() : null));
     }
 
@@ -234,10 +234,7 @@ public final class JacobVPU {
 
     private class JacobThreadImpl implements Runnable, JacobThread {
         private final JacobObject _methodBody;
-
-        private final Object[] _args;
-
-        private final Method _method;
+        private final Message message;
 
         /** Text string identifying the left side of the reduction (for debug). */
         private String _source;
@@ -249,23 +246,16 @@ public final class JacobVPU {
             assert rqe != null;
 
             _methodBody = ClassUtil.getMessageClosure(rqe.getMessage());
-            _args = rqe.getArgs();
+            message = rqe.getMessage();
             _source = rqe.getDescription();
-            _method = rqe.getMethod();
-
-            if (LOG.isDebugEnabled()) {
-                StringBuffer buf = new StringBuffer(_methodBody.getClass().getName());
-                buf.append('.');
-                buf.append(rqe.getMethod());
-                _targetStr = buf.toString();
-            }
+            _targetStr = rqe.getMessage().getAction();
         }
 
         public void instance(Runnable template) {
             LOG.trace(">> [{}] : {}", _cycle, template);
 
             _statistics.numReductionsStruct++;
-            addReaction((JacobObject)template, ClassUtil.RUN_METHOD, new Class[]{}, 
+            addReaction((JacobObject)template, ClassUtil.RUN_METHOD_ACTION, new Class[]{}, 
                 LOG.isInfoEnabled() ? template.toString() : null);
         }
 
@@ -282,15 +272,11 @@ public final class JacobVPU {
                     throw new IllegalStateException(
                         "Channel method '" + method + "' must only return void or Synch");
                 }
-                replyChannel = (Synch) newChannel(Synch.class, "", "Reply Channel");
-                Object[] newArgs = new Object[args.length + 1];
-                System.arraycopy(args, 0, newArgs, 0, args.length);
-                newArgs[args.length] = replyChannel;
-                args = newArgs;
+                replyChannel = (Synch)newChannel(Synch.class, "", "Reply Channel");
             }
             CommChannel chnl = (CommChannel) ChannelFactory.getBackend((Channel)channel);
             CommGroup grp = new CommGroup(false);
-            CommSend send = new CommSend(chnl, method, args);
+            CommSend send = new CommSend(chnl, method, args, replyChannel);
             grp.add(send);
             _executionQueue.add(grp);
             return replyChannel;
@@ -407,36 +393,21 @@ public final class JacobVPU {
         }
 
         public void run() {
-            assert _methodBody != null;
-            assert _method != null;
-            // assert _method.getDeclaringClass().isAssignableFrom(_methodBody.getClass());
-
             LOG.trace(">> [{}] : {}", _cycle, _source);
 
-            Object[] args;
-            Synch synchChannel;
-            if (_method.getReturnType() != void.class) {
-                args = new Object[_args.length - 1];
-                System.arraycopy(_args, 0, args, 0, args.length);
-                synchChannel = (Synch)_args[args.length];
-            } else {
-                args = _args;
-                synchChannel = null;
-            }
             stackThread();
+        	Synch replyTo = (Synch)ClassUtil.target().evaluate(message, Channel.class);
+
             long ctime = System.currentTimeMillis();
             try {
             	if (_methodBody instanceof ReceiveProcess) {
-            		Message msg = new Message(null, null, ClassUtil.getActionForMethod(_method));
-            		msg.setBody(args);
-
-            		((ReceiveProcess)_methodBody).onMessage(msg);
+            		((ReceiveProcess)_methodBody).onMessage(message);
             		// _method.invoke(((ReceiveProcess)_methodBody).getReceiver(), args);
             	} else {
             		((Runnable)_methodBody).run();
             	}
-                if (synchChannel != null) {
-                    synchChannel.ret();
+                if (replyTo != null) {
+                    replyTo.ret();
                 }
 /*
             } catch (IllegalAccessException iae) {

@@ -21,6 +21,7 @@ package org.apache.ode.jacob.soup.jackson;
 import java.io.IOException;
 
 import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.soup.Continuation;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -49,8 +50,9 @@ public class ContinuationDeserializer extends StdDeserializer<Continuation> {
             JsonProcessingException {
 
         JacobObject target = null;
-        String methodName = null;
+        String action = null;
         Object[] args = null;
+        Channel replyTo = null;
         
         while (jp.nextToken() != JsonToken.END_OBJECT) {
             String fieldname = jp.getCurrentName();
@@ -62,20 +64,23 @@ public class ContinuationDeserializer extends StdDeserializer<Continuation> {
             if ("target".equals(fieldname)) {
                 target = jp.readValueAs(JacobObject.class); 
             } else if ("method".equals(fieldname)) {
-                methodName = jp.getText();
-            } if ("args".equals(fieldname)) {
+                action = jp.getText();
+            } else if ("args".equals(fieldname)) {
                 args = jp.readValueAs(Object[].class);
+            } else if ("replyTo".equals(fieldname)) {
+                replyTo = jp.readValueAs(Channel.class);
             } 
         }
-        
+
         if (target == null) {
             throw ctxt.mappingException(Continuation.class);
         }
-        
-        if (methodName == null) {
+
+        if (action == null) {
             throw ctxt.mappingException(Continuation.class);
         }
-        
-        return new Continuation(target, target.getMethod(methodName), args);
+
+        // TODO: pass the replyTo channel to the Continuation
+        return new Continuation(target, action, args, replyTo);
     }
 }

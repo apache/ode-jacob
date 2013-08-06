@@ -20,9 +20,9 @@ package org.apache.ode.jacob.soup;
 
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.Message;
+import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ClassUtil;
 
-import java.lang.reflect.Method;
 
 /**
  * DOCUMENTME.
@@ -32,24 +32,11 @@ import java.lang.reflect.Method;
  */
 public class Continuation extends ExecutionQueueObject {
     private final Message message;
-    private JacobObject _closure;
-    private Method _method;
-    private Object[] _args;
+    private JacobObject closure;
 
-    public Continuation(JacobObject target, Method method, Object[] args) {
-        _closure = target;
-        _method = method;
-        _args = args;
-        
-        message = ClassUtil.createMessage(target, method, args);
-    }
-
-    public Method getMethod() {
-        return _method;
-    }
-
-    public Object[] getArgs() {
-        return _args;
+    public Continuation(JacobObject target, String action, Object[] args, Channel replyTo) {
+        closure = target;
+        message = ClassUtil.createMessage(target, action, args, replyTo);
     }
 
     public Message getMessage() {
@@ -59,9 +46,8 @@ public class Continuation extends ExecutionQueueObject {
     public String toString () {
         return new StringBuilder("{")
             .append(this.getClass().getSimpleName())
-            .append(" closure=").append(_closure)
-            .append(", method=").append(_method.getName())
-            .append(", args=").append(_args)
+            .append(" closure=").append(closure)
+            .append(", method=").append(message.getAction())
             .append("}").toString();
     }
 
