@@ -29,14 +29,14 @@ import org.apache.ode.jacob.oo.ChannelListener;
  * replicated variety.
  */
 public class CommRecv extends Comm {
-    private ChannelListener _continuation;
+    private ChannelListener listener;
 
     protected CommRecv() {
     }
 
-    public CommRecv(CommChannel chnl, ChannelListener continuation) {
+    public CommRecv(CommChannel chnl, ChannelListener listener) {
         super(null, chnl);
-        _continuation = continuation;
+        this.listener = listener;
     }
 
     /**
@@ -48,13 +48,13 @@ public class CommRecv extends Comm {
      *
      * @return byte array representing the serialized form of the continuation
      */
-    public ChannelListener getContinuation() {
-        return _continuation;
+    public ChannelListener getListener() {
+        return listener;
     }
 
     public String toString() {
         StringBuffer buf = new StringBuffer(getChannel().toString());
-        buf.append(" ? ").append(_continuation.toString());
+        buf.append(" ? ").append(listener.toString());
         return buf.toString();
     }
 }

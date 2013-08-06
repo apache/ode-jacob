@@ -36,9 +36,9 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * @author Tammo van Lessen
  *
  */
-public class ContinuationSerializer extends StdSerializer<Continuation> {
+public class MessageSerializer extends StdSerializer<Continuation> {
 
-    public ContinuationSerializer() {
+    public MessageSerializer() {
         super(Continuation.class);
     }
     

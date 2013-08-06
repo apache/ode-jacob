@@ -47,10 +47,10 @@ public class JacobModule extends SimpleModule {
         
         final ChannelProxySerializer cps = new ChannelProxySerializer();
         addSerializer(ChannelProxy.class, cps);
-        addSerializer(Continuation.class, new ContinuationSerializer());
+        addSerializer(Continuation.class, new MessageSerializer());
         addSerializer(JacksonExecutionQueueImpl.class, new ExecutionQueueImplSerializer(cps));
         addDeserializer(JacksonExecutionQueueImpl.class, new ExecutionQueueImplDeserializer());
-        addDeserializer(Continuation.class, new ContinuationDeserializer());
+        addDeserializer(Continuation.class, new MessageDeserializer());
         addDeserializer(Channel.class, new ChannelProxyDeserializer());
         
         setDeserializerModifier(new BeanDeserializerModifier() {

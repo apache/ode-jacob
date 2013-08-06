@@ -176,7 +176,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
                 if (group.isReplicated())
                     chnlFrame.replicatedRecv = true;
                 CommRecv commRecv = (CommRecv) comm;
-                ObjectFrame oframe = new ObjectFrame(commGroupFrame, chnlFrame, commRecv.getContinuation());
+                ObjectFrame oframe = new ObjectFrame(commGroupFrame, chnlFrame, commRecv.getListener());
                 commGroupFrame.commFrames.add(oframe);
                 chnlFrame.objFrames.add(oframe);
             }

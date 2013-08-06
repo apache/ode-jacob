@@ -32,10 +32,8 @@ import org.apache.ode.jacob.oo.ClassUtil;
  */
 public class Continuation extends ExecutionQueueObject {
     private final Message message;
-    private JacobObject closure;
 
     public Continuation(JacobObject target, String action, Object[] args, Channel replyTo) {
-        closure = target;
         message = ClassUtil.createMessage(target, action, args, replyTo);
     }
 
@@ -46,7 +44,6 @@ public class Continuation extends ExecutionQueueObject {
     public String toString () {
         return new StringBuilder("{")
             .append(this.getClass().getSimpleName())
-            .append(" closure=").append(closure)
             .append(", method=").append(message.getAction())
             .append("}").toString();
     }

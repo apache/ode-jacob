@@ -36,11 +36,11 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
  * @author Tammo van Lessen
  *
  */
-public class ContinuationDeserializer extends StdDeserializer<Continuation> {
+public class MessageDeserializer extends StdDeserializer<Continuation> {
 
 	private static final long serialVersionUID = 1L;
 
-	protected ContinuationDeserializer() {
+	protected MessageDeserializer() {
         super(Continuation.class);
     }
 
