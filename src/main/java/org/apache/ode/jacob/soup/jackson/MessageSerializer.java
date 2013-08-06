@@ -20,8 +20,8 @@ package org.apache.ode.jacob.soup.jackson;
 
 import java.io.IOException;
 
+import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.oo.ClassUtil;
-import org.apache.ode.jacob.soup.Continuation;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -31,19 +31,19 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
- * Jackson serializer for Continuation objects.
+ * Jackson serializer for {@link Message} objects.
  * 
  * @author Tammo van Lessen
  *
  */
-public class MessageSerializer extends StdSerializer<Continuation> {
+public class MessageSerializer extends StdSerializer<Message> {
 
     public MessageSerializer() {
-        super(Continuation.class);
+        super(Message.class);
     }
     
     @Override
-    public void serialize(Continuation value, JsonGenerator jgen,
+    public void serialize(Message value, JsonGenerator jgen,
             SerializerProvider provider) throws IOException,
             JsonGenerationException {
         jgen.writeStartObject();
@@ -53,7 +53,7 @@ public class MessageSerializer extends StdSerializer<Continuation> {
 
     
     @Override
-    public void serializeWithType(Continuation value, JsonGenerator jgen,
+    public void serializeWithType(Message value, JsonGenerator jgen,
             SerializerProvider provider, TypeSerializer typeSer)
             throws IOException, JsonProcessingException {
         typeSer.writeTypePrefixForObject(value, jgen);
@@ -61,11 +61,11 @@ public class MessageSerializer extends StdSerializer<Continuation> {
         typeSer.writeTypeSuffixForObject(value, jgen);
     }
     
-    private void serializeContents(Continuation value, JsonGenerator jgen,
+    private void serializeContents(Message value, JsonGenerator jgen,
             SerializerProvider provider) throws JsonGenerationException, IOException {
 
-        jgen.writeObjectField("target", ClassUtil.getMessageClosure(value.getMessage()));
-        jgen.writeStringField("method", value.getMessage().getAction());
-        jgen.writeObjectField("args", value.getMessage().getBody());
+        jgen.writeObjectField("target", ClassUtil.getMessageClosure(value));
+        jgen.writeStringField("method", value.getAction());
+        jgen.writeObjectField("args", value.getBody());
     }
 }

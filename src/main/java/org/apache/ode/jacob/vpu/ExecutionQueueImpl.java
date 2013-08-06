@@ -43,6 +43,7 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.ode.jacob.IndexedObject;
 import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelListener;
 import org.apache.ode.jacob.oo.ClassUtil;
@@ -51,7 +52,6 @@ import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.soup.CommGroup;
 import org.apache.ode.jacob.soup.CommRecv;
 import org.apache.ode.jacob.soup.CommSend;
-import org.apache.ode.jacob.soup.Continuation;
 import org.apache.ode.jacob.soup.ExecutionQueue;
 import org.apache.ode.jacob.soup.ExecutionQueueObject;
 import org.apache.ode.jacob.soup.ReplacementMap;
@@ -70,19 +70,19 @@ public class ExecutionQueueImpl implements ExecutionQueue {
     private ClassLoader _classLoader;
 
     /**
-     * Cached set of enqueued {@link Continuation} objects (i.e. those read using
-     * {@link #enqueueReaction(org.apache.ode.jacob.soup.Continuation)}).
+     * Cached set of enqueued {@link Message} objects (i.e. those read using
+     * {@link #enqueueReaction(Message)}).
      * These reactions are "cached"--that is it is not sent directly to the DAO
      * layer--to minimize unnecessary serialization/deserialization of closures.
-     * This is a pretty useful optimization, as most {@link Continuation}s are
+     * This is a pretty useful optimization, as most {@link Message}s are
      * enqueued, and then immediately dequeued in the next cycle. By caching
-     * {@link Continuation}s, we eliminate practically all serialization of
+     * {@link Message}s, we eliminate practically all serialization of
      * these objects, the only exception being cases where the system decides to
      * stop processing a particular soup despite the soup being able to make
      * forward progress; this scenario would occur if a maximum processign
      * time-per-instance policy were in effect.
      */
-    protected Set<Continuation> _reactions = new LinkedHashSet<Continuation>();
+    protected Set<Message> _reactions = new LinkedHashSet<Message>();
 
     protected Map<Integer, ChannelFrame> _channels = new LinkedHashMap<Integer, ChannelFrame>();
 
@@ -126,23 +126,22 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         assignId(channel, cframe.getId());
     }
 
-    public void enqueueReaction(Continuation continuation) {
-        LOG.trace(">> enqueueReaction (continuation={})", continuation);
+    public void enqueueReaction(Message message) {
+        LOG.trace(">> enqueueReaction (message={})", message);
 
-        verifyNew(continuation);
-        _reactions.add(continuation);
+        _reactions.add(message);
     }
 
-    public Continuation dequeueReaction() {
+    public Message dequeueReaction() {
         LOG.trace(">> dequeueReaction ()");
 
-        Continuation continuation = null;
+        Message message = null;
         if (!_reactions.isEmpty()) {
-            Iterator<Continuation> it = _reactions.iterator();
-            continuation = it.next();
+            Iterator<Message> it = _reactions.iterator();
+            message = it.next();
             it.remove();
         }
-        return continuation;
+        return message;
     }
 
     public void add(CommGroup group) {
@@ -250,7 +249,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
                 args[j] = sis.readObject();
             }
             Channel replyTo = (Channel) sis.readObject();
-            _reactions.add(new Continuation(closure, ClassUtil.getActionForMethod(method), args, replyTo));
+            _reactions.add(ClassUtil.createMessage(closure, ClassUtil.getActionForMethod(method), args, replyTo));
         }
 
         int numChannels = sis.readInt();
@@ -294,10 +293,11 @@ public class ExecutionQueueImpl implements ExecutionQueue {
 
         // Write out the reactions.
         sos.writeInt(_reactions.size());
-        for (Continuation c : _reactions) {
-            sos.writeObject(ClassUtil.getMessageClosure(c.getMessage()));
-            sos.writeUTF(c.getMessage().getAction());
-            Object[] args = (Object[])c.getMessage().getBody();
+        for (Message m : _reactions) {
+            sos.writeObject(ClassUtil.getMessageClosure(m));
+            // TODO: we need to write the replyTo object too
+            sos.writeUTF(m.getAction());
+            Object[] args = (Object[])m.getBody();
             sos.writeInt(args == null ? 0 : args.length);
             for (Object a : args) {
                 sos.writeObject(a);
@@ -366,8 +366,8 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         if (!_reactions.isEmpty()) {
             ps.println("-- REACTIONS");
             int cnt = 0;
-            for (Continuation continuation : _reactions) {
-                ps.println("   #" + (++cnt) + ":  " + continuation.toString());
+            for (Message m : _reactions) {
+                ps.println("   #" + (++cnt) + ":  " + m.toString());
             }
         }
         if (!_channels.isEmpty()) {
@@ -388,12 +388,10 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             MessageFrame mframe = cframe.msgFrames.iterator().next();
             ObjectFrame oframe = cframe.objFrames.iterator().next();
 
-            Continuation continuation = new Continuation(oframe._continuation, 
-            		ClassUtil.getActionForMethod(oframe._continuation.getMethod(mframe.method)), mframe.args, mframe.replyChannel);
-            if (LOG.isInfoEnabled()) {
-                continuation.setDescription(channel + " ? {...} | " + channel + " ! " + mframe.method + "(...)");
-            }
-            enqueueReaction(continuation);
+            Message message = ClassUtil.createMessage(oframe._continuation, 
+        		ClassUtil.getActionForMethod(oframe._continuation.getMethod(mframe.method)), 
+        		mframe.args, mframe.replyChannel);
+            enqueueReaction(message);
             if (!mframe.commGroupFrame.replicated) {
                 removeCommGroup(mframe.commGroupFrame);
             }

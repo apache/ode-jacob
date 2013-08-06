@@ -18,7 +18,6 @@
  */
 package org.apache.ode.jacob.vpu;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +36,6 @@ import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.soup.CommGroup;
 import org.apache.ode.jacob.soup.CommRecv;
 import org.apache.ode.jacob.soup.CommSend;
-import org.apache.ode.jacob.soup.Continuation;
 import org.apache.ode.jacob.soup.ExecutionQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +93,7 @@ public final class JacobVPU {
         }
         _cycle = _executionQueue.cycle();
 
-        Continuation rqe = _executionQueue.dequeueReaction();
+        Message rqe = _executionQueue.dequeueReaction();
         JacobThreadImpl jt = new JacobThreadImpl(rqe);
 
         long ctime = System.currentTimeMillis();
@@ -147,9 +145,7 @@ public final class JacobVPU {
     public void addReaction(JacobObject jo, String action, Object[] args, String desc) {
         LOG.trace(">> addReaction (jo={}, method={}, args={}, desc={})", jo, action, args, desc);
 
-        Continuation continuation = new Continuation(jo, action, args, null);
-        continuation.setDescription(desc);
-        _executionQueue.enqueueReaction(continuation);
+        _executionQueue.enqueueReaction(ClassUtil.createMessage(jo, action, args, null));
         ++_statistics.runQueueEntries;
     }
 
@@ -233,7 +229,6 @@ public final class JacobVPU {
     }
 
     private class JacobThreadImpl implements Runnable, JacobThread {
-        private final JacobObject _methodBody;
         private final Message message;
 
         /** Text string identifying the left side of the reduction (for debug). */
@@ -242,13 +237,9 @@ public final class JacobVPU {
         /** Text string identifying the target class and method (for debug) . */
         private String _targetStr = "Unknown";
 
-        JacobThreadImpl(Continuation rqe) {
-            assert rqe != null;
-
-            _methodBody = ClassUtil.getMessageClosure(rqe.getMessage());
-            message = rqe.getMessage();
-            _source = rqe.getDescription();
-            _targetStr = rqe.getMessage().getAction();
+        JacobThreadImpl(Message msg) {
+            message = msg;
+            _targetStr = msg.getAction();
         }
 
         public void instance(Runnable template) {
@@ -400,24 +391,15 @@ public final class JacobVPU {
 
             long ctime = System.currentTimeMillis();
             try {
-            	if (_methodBody instanceof ReceiveProcess) {
-            		((ReceiveProcess)_methodBody).onMessage(message);
-            		// _method.invoke(((ReceiveProcess)_methodBody).getReceiver(), args);
+            	JacobObject target = ClassUtil.getMessageClosure(message);
+            	if (target instanceof ReceiveProcess) {
+            		((ReceiveProcess)target).onMessage(message);
             	} else {
-            		((Runnable)_methodBody).run();
+            		((Runnable)target).run();
             	}
                 if (replyTo != null) {
                     replyTo.ret();
                 }
-/*
-            } catch (IllegalAccessException iae) {
-                throw new RuntimeException("MethodNotAccessible: " + _method.getName() + " in " + _method.getDeclaringClass().getName(), iae);
-            } catch (InvocationTargetException e) {
-                Throwable target = e.getTargetException();
-                throw (target instanceof RuntimeException)
-                    ? (RuntimeException) target
-                    : new RuntimeException("ClientMethodException: " + _method.getName() + " in " + _methodBody.getClass().getName(), target);
-*/
 			} finally {
                 ctime = System.currentTimeMillis() - ctime;
                 _statistics.totalClientTimeMs += ctime;
@@ -426,7 +408,7 @@ public final class JacobVPU {
         }
 
         public String toString() {
-            return "PT[ " + _methodBody + " ]";
+            return "PT[ " + message.getAction() + " ]";
         }
 
         private void stackThread() {

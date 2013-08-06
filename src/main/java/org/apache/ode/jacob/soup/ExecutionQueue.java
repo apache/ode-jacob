@@ -20,6 +20,8 @@ package org.apache.ode.jacob.soup;
 
 import java.io.PrintStream;
 
+import org.apache.ode.jacob.Message;
+
 /**
  * The soup, the reactive "broth" that underlies the JACOB system. The {@link ExecutionQueue}
  * implementation is responsible for implementing the JACOB reactive rules and
@@ -40,11 +42,11 @@ public interface ExecutionQueue {
    * Add a continuation to the broth. This operation is sometimes
    * referred to as an "injection"; it can be used to inject into the
    * broth the "original" continuation.
-   * @param continuation the {@link Continuation} to add to the broth
+   * @param message the {@link Message} to add to the broth
    */
-  public void enqueueReaction(Continuation continuation);
+  public void enqueueReaction(Message message);
 
-  public Continuation dequeueReaction();
+  public Message dequeueReaction();
 
   public void add(CommChannel channel);
 

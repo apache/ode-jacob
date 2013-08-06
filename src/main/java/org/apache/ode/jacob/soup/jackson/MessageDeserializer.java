@@ -21,8 +21,9 @@ package org.apache.ode.jacob.soup.jackson;
 import java.io.IOException;
 
 import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.oo.Channel;
-import org.apache.ode.jacob.soup.Continuation;
+import org.apache.ode.jacob.oo.ClassUtil;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -31,21 +32,21 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 /**
- * Jackson deserializer for Continuation objects.
+ * Jackson deserializer for Message objects.
  * 
  * @author Tammo van Lessen
  *
  */
-public class MessageDeserializer extends StdDeserializer<Continuation> {
+public class MessageDeserializer extends StdDeserializer<Message> {
 
 	private static final long serialVersionUID = 1L;
 
 	protected MessageDeserializer() {
-        super(Continuation.class);
+        super(Message.class);
     }
 
     @Override
-    public Continuation deserialize(JsonParser jp,
+    public Message deserialize(JsonParser jp,
             DeserializationContext ctxt) throws IOException,
             JsonProcessingException {
 
@@ -73,14 +74,14 @@ public class MessageDeserializer extends StdDeserializer<Continuation> {
         }
 
         if (target == null) {
-            throw ctxt.mappingException(Continuation.class);
+            throw ctxt.mappingException(Message.class);
         }
 
         if (action == null) {
-            throw ctxt.mappingException(Continuation.class);
+            throw ctxt.mappingException(Message.class);
         }
 
-        // TODO: pass the replyTo channel to the Continuation
-        return new Continuation(target, action, args, replyTo);
+        // TODO: pass the replyTo channel to the Message
+        return ClassUtil.createMessage(target, action, args, replyTo);
     }
 }

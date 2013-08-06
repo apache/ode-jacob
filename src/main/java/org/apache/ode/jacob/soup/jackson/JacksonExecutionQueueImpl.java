@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.ode.jacob.soup.Continuation;
+import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +95,7 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
             jgen.writeNumberField("currentCycle", value._currentCycle);
             
             // write continuations
-            jgen.writeObjectField("continuations", value._reactions.toArray(new Continuation[] {}));
+            jgen.writeObjectField("continuations", value._reactions.toArray(new Message[]{}));
             
             
             // channel garbage collection
@@ -157,8 +157,8 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
                 } else if ("currentCycle".equals(fieldname)) {
                     soup._currentCycle = jp.getIntValue();
                 } else if ("continuations".equals(fieldname)) {
-                    Continuation[] cs = (Continuation[])jp.readValueAs(Continuation[].class);
-                    soup._reactions = new HashSet<Continuation>(Arrays.asList(cs));
+                    Message[] cs = (Message[])jp.readValueAs(Message[].class);
+                    soup._reactions = new HashSet<Message>(Arrays.asList(cs));
                 } else if ("channels".equals(fieldname)) {
                     soup._channels = new HashMap<Integer, ChannelFrame>();
                     ChannelFrame[] frames = jp.readValueAs(ChannelFrame[].class); 
@@ -168,7 +168,6 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
                 } else if ("global".equals(fieldname)) {
                     soup._gdata = jp.readValueAs(Serializable.class);
                 }
-
             }
 
             return soup;
