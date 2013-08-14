@@ -19,6 +19,7 @@
 package org.apache.ode.jacob.examples.synch;
 
 import static org.apache.ode.jacob.oo.ProcessUtil.receive;
+import static org.apache.ode.jacob.Jacob.*;
 
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.oo.ReceiveProcess;

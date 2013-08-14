@@ -18,6 +18,8 @@
  */
 package org.apache.ode.jacob.examples.sequence;
 
+import static org.apache.ode.jacob.Jacob.*;
+
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;

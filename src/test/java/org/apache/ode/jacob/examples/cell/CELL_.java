@@ -22,6 +22,8 @@ import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Val;
 
+import static org.apache.ode.jacob.Jacob.*;
+
 /**
  * Cell process template Java representation. This class is equivalent to the
  * following process calculus expression:

@@ -19,6 +19,7 @@
 package org.apache.ode.jacob.examples.cell;
 
 import static org.apache.ode.jacob.oo.ProcessUtil.receive;
+import static org.apache.ode.jacob.Jacob.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
