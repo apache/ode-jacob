@@ -98,7 +98,17 @@ public class Message implements Serializable {
 		return headers.containsKey(header);
 	}
 	
-	public static Message copyFrom(Message message) {
+	
+    public String toString() {
+        return "Message [id=" + id + ", "
+                + (to != null ? "to=" + to + ", " : "")
+                + (replyTo != null ? "replyTo=" + replyTo + ", " : "")
+                + (action != null ? "action=" + action + ", " : "")
+                + (headers != null ? "headers=" + headers + ", " : "")
+                + (body != null ? "body=" + body : "") + "]";
+    }
+
+    public static Message copyFrom(Message message) {
 	    Message result = new Message();
 	    
 	    //XXX: generate id
