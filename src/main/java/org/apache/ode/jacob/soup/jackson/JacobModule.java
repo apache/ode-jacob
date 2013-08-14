@@ -18,6 +18,7 @@
  */
 package org.apache.ode.jacob.soup.jackson;
 
+import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelProxy;
@@ -49,9 +50,11 @@ public class JacobModule extends SimpleModule {
         addSerializer(ChannelProxy.class, cps);
         addSerializer(Message.class, new MessageSerializer());
         addSerializer(JacksonExecutionQueueImpl.class, new ExecutionQueueImplSerializer(cps));
+        addSerializer(ChannelRef.class, new ChannelRefSerializer());
         addDeserializer(JacksonExecutionQueueImpl.class, new ExecutionQueueImplDeserializer());
         addDeserializer(Message.class, new MessageDeserializer());
         addDeserializer(Channel.class, new ChannelProxyDeserializer());
+        addDeserializer(ChannelRef.class, new ChannelRefDeserializer());
         
         setDeserializerModifier(new BeanDeserializerModifier() {
 

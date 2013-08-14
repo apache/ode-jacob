@@ -44,9 +44,9 @@ public interface ExecutionQueue {
    * broth the "original" continuation.
    * @param message the {@link Message} to add to the broth
    */
-  public void enqueueReaction(Message message);
+  public void enqueueMessage(Message message);
 
-  public Message dequeueReaction();
+  public Message dequeueMessage();
 
   public void add(CommChannel channel);
 

@@ -71,7 +71,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
 
     /**
      * Cached set of enqueued {@link Message} objects (i.e. those read using
-     * {@link #enqueueReaction(Message)}).
+     * {@link #enqueueMessage(Message)}).
      * These reactions are "cached"--that is it is not sent directly to the DAO
      * layer--to minimize unnecessary serialization/deserialization of closures.
      * This is a pretty useful optimization, as most {@link Message}s are
@@ -82,7 +82,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
      * forward progress; this scenario would occur if a maximum processign
      * time-per-instance policy were in effect.
      */
-    protected Set<Message> _reactions = new LinkedHashSet<Message>();
+    protected Set<Message> _messages = new LinkedHashSet<Message>();
 
     protected Map<Integer, ChannelFrame> _channels = new LinkedHashMap<Integer, ChannelFrame>();
 
@@ -126,18 +126,18 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         assignId(channel, cframe.getId());
     }
 
-    public void enqueueReaction(Message message) {
+    public void enqueueMessage(Message message) {
         LOG.trace(">> enqueueReaction (message={})", message);
 
-        _reactions.add(message);
+        _messages.add(message);
     }
 
-    public Message dequeueReaction() {
+    public Message dequeueMessage() {
         LOG.trace(">> dequeueReaction ()");
 
         Message message = null;
-        if (!_reactions.isEmpty()) {
-            Iterator<Message> it = _reactions.iterator();
+        if (!_messages.isEmpty()) {
+            Iterator<Message> it = _messages.iterator();
             message = it.next();
             it.remove();
         }
@@ -162,8 +162,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
                     chnlFrame.replicatedSend = true;
 
                 CommSend commSend = (CommSend) comm;
-                MessageFrame mframe = new MessageFrame(commGroupFrame, chnlFrame, commSend.getMethod().getName(),
-                        commSend.getArgs(), commSend.getReplyChannel());
+                MessageFrame mframe = new MessageFrame(commGroupFrame, chnlFrame, commSend.getMessage());
                 commGroupFrame.commFrames.add(mframe);
                 chnlFrame.msgFrames.add(mframe);
             } else if (comm instanceof CommRecv) {
@@ -222,7 +221,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
     }
 
     public boolean hasReactions() {
-        return !_reactions.isEmpty();
+        return !_messages.isEmpty();
     }
 
     public void flush() {
@@ -231,7 +230,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
 
     public void read(InputStream iis) throws IOException, ClassNotFoundException {
         _channels.clear();
-        _reactions.clear();
+        _messages.clear();
         _index.clear();
 
         ExecutionQueueInputStream sis = new ExecutionQueueInputStream(iis);
@@ -249,7 +248,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
                 args[j] = sis.readObject();
             }
             Channel replyTo = (Channel) sis.readObject();
-            _reactions.add(ClassUtil.createMessage(closure, ClassUtil.getActionForMethod(method), args, replyTo));
+            _messages.add(ClassUtil.createMessage(closure, ClassUtil.getActionForMethod(method), args, replyTo));
         }
 
         int numChannels = sis.readInt();
@@ -292,9 +291,9 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         sos.writeInt(_currentCycle);
 
         // Write out the reactions.
-        sos.writeInt(_reactions.size());
-        for (Message m : _reactions) {
-            sos.writeObject(ClassUtil.getMessageClosure(m));
+        sos.writeInt(_messages.size());
+        for (Message m : _messages) {
+            sos.writeObject(m.getTo().getEndpoint(JacobObject.class));
             // TODO: we need to write the replyTo object too
             sos.writeUTF(m.getAction());
             Object[] args = (Object[])m.getBody();
@@ -343,7 +342,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
 
     public boolean isComplete() {
         // If we have more reactions we're not done.
-        if (!_reactions.isEmpty()) {
+        if (!_messages.isEmpty()) {
             return false;
         }
 
@@ -362,11 +361,11 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         ps.println(" state dump:");
         ps.println("-- GENERAL INFO");
         ps.println("   Current Cycle          : " + _currentCycle);
-        ps.println("   Num. Reactions  : " + _reactions.size());
-        if (!_reactions.isEmpty()) {
+        ps.println("   Num. Reactions  : " + _messages.size());
+        if (!_messages.isEmpty()) {
             ps.println("-- REACTIONS");
             int cnt = 0;
-            for (Message m : _reactions) {
+            for (Message m : _messages) {
                 ps.println("   #" + (++cnt) + ":  " + m.toString());
             }
         }
@@ -388,10 +387,10 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             MessageFrame mframe = cframe.msgFrames.iterator().next();
             ObjectFrame oframe = cframe.objFrames.iterator().next();
 
-            Message message = ClassUtil.createMessage(oframe._continuation, 
-        		ClassUtil.getActionForMethod(oframe._continuation.getMethod(mframe.method)), 
-        		mframe.args, mframe.replyChannel);
-            enqueueReaction(message);
+            Message msg = Message.copyFrom(mframe.message);
+            msg.setTo(new org.apache.ode.jacob.ChannelRef(oframe._continuation));
+            
+            enqueueMessage(msg);
             if (!mframe.commGroupFrame.replicated) {
                 removeCommGroup(mframe.commGroupFrame);
             }
@@ -611,38 +610,25 @@ public class ExecutionQueueImpl implements ExecutionQueue {
     protected static class MessageFrame extends CommFrame implements Externalizable {
         private static final long serialVersionUID = -1112437852498126297L;
 
-        String method;
-        Object[] args;
-        Channel replyChannel;
+        Message message;
 
         // Used for deserialization
         public MessageFrame() {
         }
 
-        public MessageFrame(CommGroupFrame commFrame, ChannelFrame channelFrame, String method, Object[] args, Channel replyChannel) {
+        public MessageFrame(CommGroupFrame commFrame, ChannelFrame channelFrame, Message msg) {
             super(commFrame, channelFrame);
-            this.method = method;
-            this.args = args == null ? new Class[]{} : args;
-            this.replyChannel = replyChannel;
+            this.message = msg;
         }
 
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             super.readExternal(in);
-            method = in.readUTF();
-            int numArgs = in.readInt();
-            args = new Object[numArgs];
-            for (int i = 0; i < numArgs; ++i) {
-                args[i] = in.readObject();
-            }
+            message = (Message)in.readObject();
         }
 
         public void writeExternal(ObjectOutput out) throws IOException {
             super.writeExternal(out);
-            out.writeUTF(method);
-            out.writeInt(args.length);
-            for (int i = 0; i < args.length; ++i) {
-                out.writeObject(args[i]);
-            }
+            out.writeObject(message);
         }
     }
 

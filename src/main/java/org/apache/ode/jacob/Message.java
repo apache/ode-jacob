@@ -18,6 +18,7 @@
  */
 package org.apache.ode.jacob;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,8 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * TODO: should anything be final here? the class itself?
  */
 
-public class Message {
-	private long id;
+public class Message implements Serializable {
+    private static final long serialVersionUID = -2118625760125445959L;
+    
+    private long id;
     private ChannelRef to;	
     private ChannelRef replyTo;
     private String action;
@@ -93,5 +96,20 @@ public class Message {
 
 	public boolean containsHeader(String header) {
 		return headers.containsKey(header);
+	}
+	
+	public static Message copyFrom(Message message) {
+	    Message result = new Message();
+	    
+	    //XXX: generate id
+	    result.setId(0);
+	    
+	    result.setAction(message.getAction());
+	    result.setBody(message.getBody());
+	    result.setHeaders(message.getHeaders());
+	    result.setTo(message.getTo());
+	    result.setReplyTo(message.getReplyTo());
+	    
+	    return result;
 	}
 }

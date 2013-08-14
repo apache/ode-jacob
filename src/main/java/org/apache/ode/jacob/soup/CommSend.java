@@ -18,9 +18,7 @@
  */
 package org.apache.ode.jacob.soup;
 
-import java.lang.reflect.Method;
-
-import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.Message;
 
 /**
  * Persistent store representation of a message (i.e. method application /
@@ -33,39 +31,24 @@ import org.apache.ode.jacob.oo.Channel;
  */
 public class CommSend extends Comm {
 
-    private Method _method;
-    private Object[] _args;
-    private Channel replyChannel;
+    private Message msg;
 
     protected CommSend() {
     }
 
-    public CommSend(CommChannel chnl, Method method, Object[] args, Channel replyChannel) {
+    public CommSend(CommChannel chnl, Message msg) {
         super(null, chnl);
-        _method = method;
-        _args = args;
-        this.replyChannel = replyChannel;
+        this.msg = msg;
     }
 
-    public Method getMethod() {
-        return _method;
+    public Message getMessage() {
+        return msg;
     }
-
-    public Object[] getArgs() {
-        return _args;
-    }
-
-    public Channel getReplyChannel() {
-		return replyChannel;
-	}
 
     public String toString() {
         StringBuffer buf = new StringBuffer(getChannel().toString());
-        buf.append(" ! ").append(_method.getName()).append('(');
-        for (int i = 0; _args != null && i < _args.length; ++i) {
-            if (i != 0) buf.append(',');
-            buf.append(_args[i]);
-        }
+        buf.append(" ! ").append(msg.getAction()).append('(');
+        buf.append(msg.getBody());
         buf.append(')');
         return buf.toString();
     }

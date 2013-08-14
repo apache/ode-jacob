@@ -20,7 +20,10 @@ package org.apache.ode.jacob.soup.jackson;
 
 import java.io.IOException;
 
+import org.apache.ode.jacob.ChannelRef;
+import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.Message;
+import org.apache.ode.jacob.oo.Channel;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -35,14 +38,14 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * @author Tammo van Lessen
  *
  */
-public class MessageSerializer extends StdSerializer<Message> {
+public class ChannelRefSerializer extends StdSerializer<ChannelRef> {
 
-    public MessageSerializer() {
-        super(Message.class);
+    public ChannelRefSerializer() {
+        super(ChannelRef.class);
     }
     
     @Override
-    public void serialize(Message value, JsonGenerator jgen,
+    public void serialize(ChannelRef value, JsonGenerator jgen,
             SerializerProvider provider) throws IOException,
             JsonGenerationException {
         jgen.writeStartObject();
@@ -52,7 +55,7 @@ public class MessageSerializer extends StdSerializer<Message> {
 
     
     @Override
-    public void serializeWithType(Message value, JsonGenerator jgen,
+    public void serializeWithType(ChannelRef value, JsonGenerator jgen,
             SerializerProvider provider, TypeSerializer typeSer)
             throws IOException, JsonProcessingException {
         typeSer.writeTypePrefixForObject(value, jgen);
@@ -60,21 +63,10 @@ public class MessageSerializer extends StdSerializer<Message> {
         typeSer.writeTypeSuffixForObject(value, jgen);
     }
     
-    private void serializeContents(Message value, JsonGenerator jgen,
+    private void serializeContents(ChannelRef value, JsonGenerator jgen,
             SerializerProvider provider) throws JsonGenerationException, IOException {
         
-        jgen.writeNumberField("id", value.getId());
-        jgen.writeStringField("action", value.getAction());
-        jgen.writeObjectField("to", value.getTo());
-        if (value.getReplyTo() != null) {
-            jgen.writeObjectField("replyTo", value.getTo());
-        }
-        if (value.getHeaders() != null && !value.getHeaders().isEmpty()) {
-            jgen.writeObjectField("headers", value.getHeaders());            
-        }
-        if (value.getBody() != null) {
-            jgen.writeObjectField("body", value.getBody());
-        }
-        
+        jgen.writeObjectField("target", value.getEndpoint(value.getType() == ChannelRef.Type.CHANNEL 
+                ? Channel.class : JacobObject.class));
     }
 }

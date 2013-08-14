@@ -18,10 +18,42 @@
  */
 package org.apache.ode.jacob;
 
+import java.io.Serializable;
+
+import org.apache.ode.jacob.oo.Channel;
+
+
 
 /**
  * TODO: Document...
  */
 
-public interface ChannelRef {
+public class ChannelRef implements Serializable {
+    public enum Type { JACOB_OBJECT, CHANNEL }
+    
+    private static final long serialVersionUID = 1L;
+
+    private final Type type;
+    private final Object target;
+    
+    public ChannelRef(Object target) {
+        type = target instanceof Channel ? Type.CHANNEL : Type.JACOB_OBJECT;
+        this.target = target;
+    }
+    
+    public Type getType() {
+        return type;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getEndpoint(Class<T> clazz) {
+        if (type.equals(Type.JACOB_OBJECT) && JacobObject.class.isAssignableFrom(clazz)) {
+            return (T)target;
+        } else if (type.equals(Type.CHANNEL) && Channel.class.isAssignableFrom(clazz)) {
+            return (T)target;
+        }
+        
+        return null;
+    }
+    
 }

@@ -20,6 +20,7 @@ package org.apache.ode.jacob.soup.jackson;
 
 import java.util.Collection;
 
+import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelProxy;
@@ -39,7 +40,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.jsontype.impl.ClassNameIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
-
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -90,7 +90,11 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
             return true;
         }
         
-        if (t.getRawClass() == Object.class) {
+        if (ChannelRef.class.isAssignableFrom(t.getRawClass()))  {
+            return true;
+        }
+
+        if (t.getRawClass() == Object.class || t.isArrayType()) {
             return true;
         }
 

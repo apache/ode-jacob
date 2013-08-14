@@ -19,16 +19,12 @@
 package org.apache.ode.jacob.soup.jackson;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.ode.jacob.ChannelRef;
-import org.apache.ode.jacob.Message;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
@@ -38,26 +34,20 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
  * @author Tammo van Lessen
  *
  */
-public class MessageDeserializer extends StdDeserializer<Message> {
+public class ChannelRefDeserializer extends StdDeserializer<ChannelRef> {
 
 	private static final long serialVersionUID = 1L;
-	private TypeReference<HashMap<String,Object>> mapTypeRef = new TypeReference<HashMap<String, Object>>() {}; 
 
-	protected MessageDeserializer() {
-        super(Message.class);
+	protected ChannelRefDeserializer() {
+        super(ChannelRef.class);
     }
 
     @Override
-    public Message deserialize(JsonParser jp,
+    public ChannelRef deserialize(JsonParser jp,
             DeserializationContext ctxt) throws IOException,
             JsonProcessingException {
 
-        long id = 0;
-        String action = null;
-        ChannelRef to = null;
-        ChannelRef replyTo = null;
-        Map<String, Object> headers = null;
-        Object body = null;
+        Object target = null;
         
         while (jp.nextToken() != JsonToken.END_OBJECT) {
             String fieldname = jp.getCurrentName();
@@ -66,34 +56,15 @@ public class MessageDeserializer extends StdDeserializer<Message> {
                 jp.nextToken();
             }
 
-            if ("id".equals(fieldname)) {
-                id = jp.getLongValue(); 
-            } else if ("action".equals(fieldname)) {
-                action = jp.getText();
-            } else if ("to".equals(fieldname)) {
-                to = jp.readValueAs(ChannelRef.class);
-            } else if ("replyTo".equals(fieldname)) {
-                replyTo = jp.readValueAs(ChannelRef.class);
-            } else if ("headers".equals(fieldname)) {
-                headers = jp.readValueAs(mapTypeRef);
-            } else if ("body".equals(fieldname)) {
-                body = jp.readValueAs(Object.class);
+            if ("target".equals(fieldname)) {
+                target = jp.readValueAs(Object.class); 
             } 
         }
 
-        if (action == null) {
-            throw ctxt.mappingException(Message.class);
+        if (target == null) {
+            throw ctxt.mappingException(ChannelRef.class);
         }
 
-        if (to == null) {
-            throw ctxt.mappingException(Message.class);
-        }
-
-        Message msg = new Message(to, replyTo, action);
-        msg.setHeaders(headers);
-        msg.setBody(body);
-        msg.setId(id);
-        
-        return msg;
+        return new ChannelRef(target);
     }
 }

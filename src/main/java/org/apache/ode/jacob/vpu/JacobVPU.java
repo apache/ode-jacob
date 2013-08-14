@@ -93,7 +93,7 @@ public final class JacobVPU {
         }
         _cycle = _executionQueue.cycle();
 
-        Message rqe = _executionQueue.dequeueReaction();
+        Message rqe = _executionQueue.dequeueMessage();
         JacobThreadImpl jt = new JacobThreadImpl(rqe);
 
         long ctime = System.currentTimeMillis();
@@ -145,7 +145,7 @@ public final class JacobVPU {
     public void addReaction(JacobObject jo, String action, Object[] args, String desc) {
         LOG.trace(">> addReaction (jo={}, method={}, args={}, desc={})", jo, action, args, desc);
 
-        _executionQueue.enqueueReaction(ClassUtil.createMessage(jo, action, args, null));
+        _executionQueue.enqueueMessage(ClassUtil.createMessage(jo, action, args, null));
         ++_statistics.runQueueEntries;
     }
 
@@ -267,7 +267,10 @@ public final class JacobVPU {
             }
             CommChannel chnl = (CommChannel) ChannelFactory.getBackend((Channel)channel);
             CommGroup grp = new CommGroup(false);
-            CommSend send = new CommSend(chnl, method, args, replyChannel);
+            
+            Message msg = ClassUtil.createMessage(channel, ClassUtil.getActionForMethod(method), args, replyChannel);
+            
+            CommSend send = new CommSend(chnl, msg);
             grp.add(send);
             _executionQueue.add(grp);
             return replyChannel;
@@ -387,18 +390,18 @@ public final class JacobVPU {
             LOG.trace(">> [{}] : {}", _cycle, _source);
 
             stackThread();
-        	Synch replyTo = (Synch)ClassUtil.target().evaluate(message, Channel.class);
+        	Channel replyTo = message.getReplyTo() != null ? message.getReplyTo().getEndpoint(Channel.class) : null;
 
             long ctime = System.currentTimeMillis();
             try {
-            	JacobObject target = ClassUtil.getMessageClosure(message);
+            	JacobObject target = message.getTo().getEndpoint(JacobObject.class);
             	if (target instanceof ReceiveProcess) {
             		((ReceiveProcess)target).onMessage(message);
             	} else {
             		((Runnable)target).run();
             	}
                 if (replyTo != null) {
-                    replyTo.ret();
+                    ((Synch)replyTo).ret();
                 }
 			} finally {
                 ctime = System.currentTimeMillis() - ctime;

@@ -95,7 +95,7 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
             jgen.writeNumberField("currentCycle", value._currentCycle);
             
             // write continuations
-            jgen.writeObjectField("continuations", value._reactions.toArray(new Message[]{}));
+            jgen.writeObjectField("messages", value._messages.toArray(new Message[]{}));
             
             
             // channel garbage collection
@@ -156,9 +156,9 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
                     soup._objIdCounter = jp.getIntValue();
                 } else if ("currentCycle".equals(fieldname)) {
                     soup._currentCycle = jp.getIntValue();
-                } else if ("continuations".equals(fieldname)) {
+                } else if ("messages".equals(fieldname)) {
                     Message[] cs = (Message[])jp.readValueAs(Message[].class);
-                    soup._reactions = new HashSet<Message>(Arrays.asList(cs));
+                    soup._messages = new HashSet<Message>(Arrays.asList(cs));
                 } else if ("channels".equals(fieldname)) {
                     soup._channels = new HashMap<Integer, ChannelFrame>();
                     ChannelFrame[] frames = jp.readValueAs(ChannelFrame[].class); 

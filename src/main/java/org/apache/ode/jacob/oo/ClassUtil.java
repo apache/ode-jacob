@@ -57,8 +57,17 @@ public final class ClassUtil {
 
     public static Message createMessage(JacobObject target, String action, Object[] args, Channel replyTo) {
     	Message message = new Message();
-        message.setTo(new JacobObjectChannelRef(target));
-        message.setReplyTo(replyTo == null ? null : new ChannelChannelRef(replyTo));
+        message.setTo(new ChannelRef(target));
+        message.setReplyTo(replyTo == null ? null : new ChannelRef(replyTo));
+        message.setAction(action);
+        message.setBody(args);
+        return message;
+    }
+
+    public static Message createMessage(Channel target, String action, Object[] args, Channel replyTo) {
+        Message message = new Message();
+        message.setTo(new ChannelRef(target));
+        message.setReplyTo(replyTo == null ? null : new ChannelRef(replyTo));
         message.setAction(action);
         message.setBody(args);
         return message;
@@ -130,24 +139,6 @@ public final class ClassUtil {
     	};
     }
 
-    public static Expression target() {
-    	return new Expression() {
-			@SuppressWarnings("unchecked")
-			public <T> T evaluate(Message message, Class<T> type) {
-				ChannelRef ref = message.getTo();
-				if (JacobObject.class.equals(type) && ref instanceof JacobObjectChannelRef) {
-					return (T)((JacobObjectChannelRef)ref).getRef();
-				} else if (Channel.class.equals(type) && ref instanceof ChannelChannelRef) {
-					return (T)((ChannelChannelRef)ref).getRef();
-				}
-				return null;
-			}
-    	};
-    }
-
-    public static JacobObject getMessageClosure(Message message) {
-    	return target().evaluate(message, JacobObject.class);
-    }
 
     public static Set<Method> getImplementedMethods(Set<Method> methods, Class<?> clazz) {
         // TODO: this can be optimized (some 20 times faster in my tests) by keeping a private 
