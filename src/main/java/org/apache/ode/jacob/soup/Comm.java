@@ -34,8 +34,7 @@ public abstract class Comm extends ExecutionQueueObject {
     protected Comm() {
     }
 
-    protected Comm(CommGroup group, CommChannel chnl) {
-        _group = group;
+    protected Comm(CommChannel chnl) {
         _channel = chnl;
     }
 

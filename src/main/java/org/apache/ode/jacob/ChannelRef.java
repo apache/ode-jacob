@@ -20,7 +20,7 @@ package org.apache.ode.jacob;
 
 import java.io.Serializable;
 
-import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.soup.CommChannel;
 
 
 
@@ -37,7 +37,7 @@ public class ChannelRef implements Serializable {
     private final Object target;
     
     public ChannelRef(Object target) {
-        type = target instanceof Channel ? Type.CHANNEL : Type.JACOB_OBJECT;
+        type = target instanceof CommChannel ? Type.CHANNEL : Type.JACOB_OBJECT;
         this.target = target;
     }
     
@@ -49,7 +49,7 @@ public class ChannelRef implements Serializable {
     public <T> T getEndpoint(Class<T> clazz) {
         if (type.equals(Type.JACOB_OBJECT) && JacobObject.class.isAssignableFrom(clazz)) {
             return (T)target;
-        } else if (type.equals(Type.CHANNEL) && Channel.class.isAssignableFrom(clazz)) {
+        } else if (type.equals(Type.CHANNEL) && CommChannel.class.isAssignableFrom(clazz)) {
             return (T)target;
         }
         

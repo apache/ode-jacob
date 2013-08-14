@@ -29,6 +29,10 @@ public class CommChannel extends ExecutionQueueObject {
 
     private Class<?> _type;
 
+    // used for deserialization
+    @SuppressWarnings("unused")
+    private CommChannel() {}
+    
     public CommChannel(Class<?> type) {
         _type = type;
     }

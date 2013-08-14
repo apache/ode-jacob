@@ -35,7 +35,7 @@ public class CommRecv extends Comm {
     }
 
     public CommRecv(CommChannel chnl, ChannelListener listener) {
-        super(null, chnl);
+        super(chnl);
         this.listener = listener;
     }
 

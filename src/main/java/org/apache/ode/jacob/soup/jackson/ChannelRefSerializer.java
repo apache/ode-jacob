@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.Message;
-import org.apache.ode.jacob.oo.Channel;
+import org.apache.ode.jacob.soup.CommChannel;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -67,6 +67,6 @@ public class ChannelRefSerializer extends StdSerializer<ChannelRef> {
             SerializerProvider provider) throws JsonGenerationException, IOException {
         
         jgen.writeObjectField("target", value.getEndpoint(value.getType() == ChannelRef.Type.CHANNEL 
-                ? Channel.class : JacobObject.class));
+                ? CommChannel.class : JacobObject.class));
     }
 }

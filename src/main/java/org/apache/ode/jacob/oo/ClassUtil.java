@@ -26,6 +26,7 @@ import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.Expression;
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.Message;
+import org.apache.ode.jacob.soup.CommChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,7 @@ public final class ClassUtil {
     public static final Method RUN_METHOD;
     public static final String RUN_METHOD_NAME = "run";
     public static final String RUN_METHOD_ACTION = "java.lang.Runnable#run";
+    public static final String SYNCH_RET_METHOD_ACTION = "org.apache.ode.jacob.oo.Synch#ret";
     private static final Set<Method> RUN_METHOD_SET = new HashSet<Method>();
     private static final Logger LOG = LoggerFactory.getLogger(ClassUtil.class);
 
@@ -64,7 +66,7 @@ public final class ClassUtil {
         return message;
     }
 
-    public static Message createMessage(Channel target, String action, Object[] args, Channel replyTo) {
+    public static Message createMessage(CommChannel target, String action, Object[] args, CommChannel replyTo) {
         Message message = new Message();
         message.setTo(new ChannelRef(target));
         message.setReplyTo(replyTo == null ? null : new ChannelRef(replyTo));

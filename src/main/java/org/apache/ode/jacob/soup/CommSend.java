@@ -36,8 +36,8 @@ public class CommSend extends Comm {
     protected CommSend() {
     }
 
-    public CommSend(CommChannel chnl, Message msg) {
-        super(null, chnl);
+    public CommSend(Message msg) {
+        super(msg.getTo().getEndpoint(CommChannel.class));
         this.msg = msg;
     }
 

@@ -86,7 +86,12 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
             return true;
         }
         
+        //TODO: check if still needed.
         if (Channel.class.isAssignableFrom(t.getRawClass()))  {
+            return true;
+        }
+        
+        if (CommChannel.class.isAssignableFrom(t.getRawClass()))  {
             return true;
         }
         

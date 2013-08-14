@@ -257,6 +257,7 @@ public final class JacobVPU {
             _statistics.messagesSent++;
 
             Synch replyChannel = null;
+            CommChannel replyCommChannel = null;
             // Check for synchronous methods; create a synchronization channel
             if (method.getReturnType() != void.class) {
                 if (method.getReturnType() != Synch.class) {
@@ -264,16 +265,22 @@ public final class JacobVPU {
                         "Channel method '" + method + "' must only return void or Synch");
                 }
                 replyChannel = (Synch)newChannel(Synch.class, "", "Reply Channel");
+                replyCommChannel = (CommChannel) ChannelFactory.getBackend((Channel)replyChannel);
             }
+            
             CommChannel chnl = (CommChannel) ChannelFactory.getBackend((Channel)channel);
+            Message msg = ClassUtil.createMessage(chnl, ClassUtil.getActionForMethod(method), args, replyCommChannel);
+
+            sendMessage(msg);
+            return replyChannel;
+        }
+        
+        //XXX: add to super interface as message-oriented API
+        public void sendMessage(Message msg) {
             CommGroup grp = new CommGroup(false);
-            
-            Message msg = ClassUtil.createMessage(channel, ClassUtil.getActionForMethod(method), args, replyChannel);
-            
-            CommSend send = new CommSend(chnl, msg);
+            CommSend send = new CommSend(msg);
             grp.add(send);
             _executionQueue.add(grp);
-            return replyChannel;
         }
 
         public Channel newChannel(Class<?> channelType, String creator, String description) {
@@ -390,7 +397,7 @@ public final class JacobVPU {
             LOG.trace(">> [{}] : {}", _cycle, _source);
 
             stackThread();
-        	Channel replyTo = message.getReplyTo() != null ? message.getReplyTo().getEndpoint(Channel.class) : null;
+        	CommChannel replyTo = message.getReplyTo() != null ? message.getReplyTo().getEndpoint(CommChannel.class) : null;
 
             long ctime = System.currentTimeMillis();
             try {
@@ -401,7 +408,7 @@ public final class JacobVPU {
             		((Runnable)target).run();
             	}
                 if (replyTo != null) {
-                    ((Synch)replyTo).ret();
+                    sendMessage(ClassUtil.createMessage(replyTo, ClassUtil.SYNCH_RET_METHOD_ACTION, null, null));
                 }
 			} finally {
                 ctime = System.currentTimeMillis() - ctime;
