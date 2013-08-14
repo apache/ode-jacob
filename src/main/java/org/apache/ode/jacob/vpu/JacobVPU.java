@@ -26,12 +26,12 @@ import java.util.Stack;
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.JacobThread;
 import org.apache.ode.jacob.Message;
+import org.apache.ode.jacob.MessageListener;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelListener;
 import org.apache.ode.jacob.oo.ClassUtil;
 import org.apache.ode.jacob.oo.CompositeProcess;
 import org.apache.ode.jacob.oo.ReceiveProcess;
-import org.apache.ode.jacob.oo.Synch;
 import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.soup.CommGroup;
 import org.apache.ode.jacob.soup.CommRecv;
@@ -275,7 +275,6 @@ public final class JacobVPU {
             return replyChannel;
         }
         
-        //XXX: add to super interface as message-oriented API
         public void sendMessage(Message msg) {
             CommGroup grp = new CommGroup(false);
             CommSend send = new CommSend(msg);
@@ -295,6 +294,17 @@ public final class JacobVPU {
             return ret;
         }
 
+        public CommChannel newCommChannel(Class<?> channelType, String creator, String description) {
+            CommChannel chnl = new CommChannel(channelType);
+            chnl.setDescription(description);
+            _executionQueue.add(chnl);
+
+            LOG.trace(">> [{}] : new {}", _cycle, chnl);
+
+            _statistics.channelsCreated++;
+            return chnl;
+        }
+        
         public String exportChannel(Channel channel) {
             LOG.trace(">> [{}] : export<{}>", _cycle, channel);
 
@@ -302,11 +312,22 @@ public final class JacobVPU {
             return _executionQueue.createExport(chnl);
         }
 
+        public String exportCommChannel(CommChannel channel) {
+            LOG.trace(">> [{}] : export<{}>", _cycle, channel);
+
+            return _executionQueue.createExport(channel);
+        }
+
+        //XXX: check if channelType is really needed, could be get from cframe.getType()
         public Channel importChannel(String channelId, Class<?> channelType) {
             CommChannel cframe = _executionQueue.consumeExport(channelId);
             return ChannelFactory.createChannel(cframe, channelType);
         }
 
+        public CommChannel importCommChannel(String channelId, Class<?> channelType) {
+            return _executionQueue.consumeExport(channelId);
+        }
+        
         public void object(boolean replicate, ChannelListener[] ml) {
             if (LOG.isTraceEnabled()) {
                 StringBuffer msg = new StringBuffer();
@@ -351,6 +372,50 @@ public final class JacobVPU {
 
             CommGroup grp = new CommGroup(replicate);
             addCommChannel(grp, ml);
+            _executionQueue.add(grp);
+        }
+        
+        public void subscribe(boolean replicate, CommChannel channel, MessageListener listener) {
+            if (LOG.isTraceEnabled()) {
+                StringBuffer msg = new StringBuffer();
+                msg.append(_cycle);
+                msg.append(": ");
+                msg.append(channel);
+                msg.append(" ? ");
+                msg.append(listener.toString());
+                LOG.trace(msg.toString());
+            }
+
+            _statistics.numContinuations++;
+
+            CommGroup grp = new CommGroup(replicate);
+            CommRecv recv = new CommRecv(channel, listener);
+            grp.add(recv);
+
+            _executionQueue.add(grp);
+        }
+
+        public void subscribe(boolean replicate, CommChannel channel, MessageListener listeners[]) {
+            if (LOG.isTraceEnabled()) {
+                StringBuffer msg = new StringBuffer();
+                msg.append(_cycle);
+                msg.append(": ");
+                for (int i = 0; i < listeners.length; ++i) {
+                    if (i != 0) msg.append(" + ");
+                    msg.append(channel);
+                    msg.append(" ? ");
+                    msg.append(listeners[i].toString());
+                }
+                LOG.debug(msg.toString());
+            }
+
+            _statistics.numContinuations++;
+
+            CommGroup grp = new CommGroup(replicate);
+            for (int i = 0; i < listeners.length; ++i) {
+                CommRecv recv = new CommRecv(channel, listeners[i]);
+                grp.add(recv);
+            }
             _executionQueue.add(grp);
         }
 

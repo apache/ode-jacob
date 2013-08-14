@@ -42,6 +42,7 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.ode.jacob.IndexedObject;
 import org.apache.ode.jacob.Message;
+import org.apache.ode.jacob.MessageListener;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelListener;
 import org.apache.ode.jacob.soup.Comm;
@@ -566,13 +567,13 @@ public class ExecutionQueueImpl implements ExecutionQueue {
     protected static class ObjectFrame extends CommFrame implements Externalizable {
         private static final long serialVersionUID = -7212430608484116919L;
 
-        ChannelListener _continuation;
+        MessageListener _continuation;
 
         // Used for deserialization
         public ObjectFrame() {
         }
 
-        public ObjectFrame(CommGroupFrame commGroupFrame, ChannelFrame channelFrame, ChannelListener continuation) {
+        public ObjectFrame(CommGroupFrame commGroupFrame, ChannelFrame channelFrame, MessageListener continuation) {
             super(commGroupFrame, channelFrame);
             this._continuation = continuation;
         }

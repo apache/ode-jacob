@@ -23,6 +23,6 @@ package org.apache.ode.jacob;
  * TODO: Document...
  */
 
-public interface MessageChannel {
+public interface MessageListener {
 	void onMessage(Message msg);
 }

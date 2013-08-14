@@ -18,6 +18,7 @@
  */
 package org.apache.ode.jacob.soup;
 
+import org.apache.ode.jacob.MessageListener;
 import org.apache.ode.jacob.oo.ChannelListener;
 
 /**
@@ -29,12 +30,12 @@ import org.apache.ode.jacob.oo.ChannelListener;
  * replicated variety.
  */
 public class CommRecv extends Comm {
-    private ChannelListener listener;
+    private MessageListener listener;
 
     protected CommRecv() {
     }
 
-    public CommRecv(CommChannel chnl, ChannelListener listener) {
+    public CommRecv(CommChannel chnl, MessageListener listener) {
         super(chnl);
         this.listener = listener;
     }
@@ -48,7 +49,7 @@ public class CommRecv extends Comm {
      *
      * @return byte array representing the serialized form of the continuation
      */
-    public ChannelListener getListener() {
+    public MessageListener getListener() {
         return listener;
     }
 

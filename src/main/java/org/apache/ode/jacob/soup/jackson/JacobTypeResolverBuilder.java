@@ -22,6 +22,7 @@ import java.util.Collection;
 
 import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.MessageListener;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelProxy;
 import org.apache.ode.jacob.soup.CommChannel;
@@ -96,6 +97,10 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
         }
         
         if (ChannelRef.class.isAssignableFrom(t.getRawClass()))  {
+            return true;
+        }
+
+        if (MessageListener.class.isAssignableFrom(t.getRawClass()))  {
             return true;
         }
 
