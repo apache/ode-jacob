@@ -29,7 +29,6 @@ import java.io.ObjectStreamClass;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -42,11 +41,9 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.ode.jacob.IndexedObject;
-import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelListener;
-import org.apache.ode.jacob.oo.ClassUtil;
 import org.apache.ode.jacob.soup.Comm;
 import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.soup.CommGroup;
@@ -239,16 +236,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         _currentCycle = sis.readInt();
         int reactions = sis.readInt();
         for (int i = 0; i < reactions; ++i) {
-            JacobObject closure = (JacobObject) sis.readObject();
-            String methodName = sis.readUTF();
-            Method method = closure.getMethod(methodName);
-            int numArgs = sis.readInt();
-            Object[] args = new Object[numArgs];
-            for (int j = 0; j < numArgs; ++j) {
-                args[j] = sis.readObject();
-            }
-            Channel replyTo = (Channel) sis.readObject();
-            _messages.add(ClassUtil.createMessage(closure, ClassUtil.getActionForMethod(method), args, replyTo));
+            _messages.add((Message)sis.readObject());
         }
 
         int numChannels = sis.readInt();
@@ -293,14 +281,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         // Write out the reactions.
         sos.writeInt(_messages.size());
         for (Message m : _messages) {
-            sos.writeObject(m.getTo().getEndpoint(JacobObject.class));
-            // TODO: we need to write the replyTo object too
-            sos.writeUTF(m.getAction());
-            Object[] args = (Object[])m.getBody();
-            sos.writeInt(args == null ? 0 : args.length);
-            for (Object a : args) {
-                sos.writeObject(a);
-            }
+            sos.writeObject(m);
         }
 
         sos.writeInt(_channels.values().size());
