@@ -18,6 +18,8 @@
  */
 package org.apache.ode.jacob.soup;
 
+import java.io.Serializable;
+
 
 /**
  * DOCUMENTME.
@@ -25,7 +27,8 @@ package org.apache.ode.jacob.soup;
  * @author Maciej Szefler <a href="mailto:mbs@fivesight.com">mbs</a>
  */
 
-public class CommChannel extends ExecutionQueueObject {
+public class CommChannel extends ExecutionQueueObject implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private Class<?> _type;
 
