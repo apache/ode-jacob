@@ -256,15 +256,15 @@ public final class JacobVPU {
 
             _statistics.messagesSent++;
 
-            Synch replyChannel = null;
+            Channel replyChannel = null;
             CommChannel replyCommChannel = null;
             // Check for synchronous methods; create a synchronization channel
             if (method.getReturnType() != void.class) {
-                if (method.getReturnType() != Synch.class) {
+                if (!Channel.class.isAssignableFrom(method.getReturnType())) {
                     throw new IllegalStateException(
-                        "Channel method '" + method + "' must only return void or Synch");
+                        "Channel method '" + method + "' must only return void or an implementation of " + Channel.class.getName());
                 }
-                replyChannel = (Synch)newChannel(Synch.class, "", "Reply Channel");
+                replyChannel = newChannel(method.getReturnType(), "", "Reply Channel");
                 replyCommChannel = (CommChannel) ChannelFactory.getBackend((Channel)replyChannel);
             }
             
