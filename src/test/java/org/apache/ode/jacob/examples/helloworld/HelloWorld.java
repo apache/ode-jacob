@@ -20,12 +20,16 @@ package org.apache.ode.jacob.examples.helloworld;
 
 import static org.apache.ode.jacob.Jacob.*;
 
+import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.Message;
+import org.apache.ode.jacob.MessageListener;
 import org.apache.ode.jacob.examples.sequence.Sequence;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;
 import org.apache.ode.jacob.oo.Val;
+import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.soup.jackson.JacksonExecutionQueueImpl;
 import org.apache.ode.jacob.soup.jackson.JacobModule;
 import org.apache.ode.jacob.vpu.JacobVPU;
@@ -215,6 +219,63 @@ public class HelloWorld extends JacobObject implements Runnable {
         instance(new HWSequence(greeting, out, null));
     }
 
+    protected void calculusHelloWorld() {
+        // new(out)
+        final CommChannel out = newCommChannel(Val.class, "calculusHelloWorld-out");
+        // new(x)
+        final CommChannel x = newCommChannel(Val.class, "calculusHelloWorld-x");
+
+        // *(?out(str).!sysout(str))
+        subscribe(true, out, new PrinterMessageListener());
+        // *(?x(str).!out(str))
+        subscribe(true, x, new ForwarderMessageListener(out));
+        // !out(hello) | !out(world)
+        instance(new StringEmitterRunnable("Hello", x));
+        instance(new StringEmitterRunnable("World", x));
+    }
+
+    static class PrinterMessageListener implements MessageListener {
+
+        @Override
+        public void onMessage(Message msg) {
+            System.out.println(msg.getBody());
+        }
+        
+    }
+    
+    static class ForwarderMessageListener implements MessageListener {
+        private CommChannel to;
+        
+        @JsonCreator
+        public ForwarderMessageListener(@JsonProperty("to") CommChannel to) {
+            this.to = to;
+        }
+
+        @Override
+        public void onMessage(Message msg) {
+            Message msg2 = new Message(new ChannelRef(to), null, msg.getAction());
+            msg2.setBody(msg.getBody());
+            sendMessage(msg2);
+        }
+    }
+    
+    static class StringEmitterRunnable extends JacobObject implements Runnable {
+        private String str;
+        private CommChannel to;
+
+        @JsonCreator
+        public StringEmitterRunnable(@JsonProperty("str") String str, @JsonProperty("to") CommChannel to) {
+            this.str = str;
+            this.to = to;
+        }
+
+        public void run() {
+            Message msg = new Message(new ChannelRef(to), null, "printHW");
+            msg.setBody(str);
+            sendMessage(msg);
+        }
+    }
+    
     static class HWSequence extends Sequence {
 
 		private final String[] greetings;
@@ -255,9 +316,10 @@ public class HelloWorld extends JacobObject implements Runnable {
 
     @Override
     public void run() {
-        simpleHelloWorld();
-        reliableHelloWorld();
-        sequencedHelloWorld();
+//        simpleHelloWorld();
+//        reliableHelloWorld();
+//        sequencedHelloWorld();
+        calculusHelloWorld();
     }
 
     public static void main(String args[]) throws Exception {
@@ -294,7 +356,7 @@ public class HelloWorld extends JacobObject implements Runnable {
     public static JacksonExecutionQueueImpl loadAndRestoreQueue(ObjectMapper mapper, JacksonExecutionQueueImpl in) throws Exception {
         byte[] json = mapper.writeValueAsBytes(in);
         // print json
-        //System.out.println(new String(json));
+        System.out.println(new String(json));
         JacksonExecutionQueueImpl q2 = mapper.readValue(json, JacksonExecutionQueueImpl.class);
         return q2;
     }
