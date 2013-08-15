@@ -71,8 +71,8 @@ public class Jacob {
      * @param channel
      * @return
      */
-    public static ChannelRef newCommChannel(Class<?> channelType, String description) {
-        return JacobVPU.activeJacobThread().newCommChannel(channelType, null, description);
+    public static ChannelRef newCommChannel(String description) {
+        return JacobVPU.activeJacobThread().newCommChannel(description);
     }
     
     /**

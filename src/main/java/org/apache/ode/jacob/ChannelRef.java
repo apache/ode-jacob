@@ -20,7 +20,9 @@ package org.apache.ode.jacob;
 
 import java.io.Serializable;
 
+import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.soup.CommChannel;
+import org.apache.ode.jacob.vpu.ChannelFactory;
 import org.apache.ode.jacob.vpu.JacobVPU;
 
 
@@ -30,19 +32,21 @@ import org.apache.ode.jacob.vpu.JacobVPU;
  */
 
 public class ChannelRef implements Serializable {
-    public enum Type { JACOB_OBJECT, CHANNEL, MESSAGE_LISTENER }
+    public enum Type { RUNNABLE, CHANNEL, MESSAGE_LISTENER }
     
     private static final long serialVersionUID = 1L;
 
     private final Type type;
     private final Object target;
     
+    private transient Channel cachedChannel;
+    
     public ChannelRef(Object target) {
         assert target != null;
         if (target instanceof CommChannel) {
             type = Type.CHANNEL;
-        } else if (target instanceof JacobObject) {
-            type = Type.JACOB_OBJECT;
+        } else if (target instanceof Runnable) {
+            type = Type.RUNNABLE;
         } else if (target instanceof MessageListener) {
             type = Type.MESSAGE_LISTENER;
         } else {
@@ -66,10 +70,20 @@ public class ChannelRef implements Serializable {
 
     @SuppressWarnings("unchecked")
     public <T> T getEndpoint(Class<T> clazz) {
-        if (type.equals(Type.JACOB_OBJECT) && JacobObject.class.isAssignableFrom(clazz)) {
+        if (type.equals(Type.RUNNABLE) && Runnable.class.isAssignableFrom(clazz)) {
             return (T)target;
         } else if (type.equals(Type.CHANNEL) && CommChannel.class.isAssignableFrom(clazz)) {
             return (T)target;
+        } else if (type.equals(Type.CHANNEL) && Channel.class.isAssignableFrom(clazz)) {
+            if (cachedChannel == null) {
+                cachedChannel = ChannelFactory.createChannel((CommChannel)target, clazz);
+            }
+            
+            if (!clazz.isAssignableFrom(cachedChannel.getClass())) {
+                throw new IllegalStateException("ChannelRef is already associated with a channel of a different type");
+            }
+
+            return (T)cachedChannel;
         } else if (type.equals(Type.MESSAGE_LISTENER) && MessageListener.class.isAssignableFrom(clazz)) {
             return (T)target;
         }

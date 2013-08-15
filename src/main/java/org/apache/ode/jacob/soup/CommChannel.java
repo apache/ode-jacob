@@ -32,20 +32,25 @@ public class CommChannel extends ExecutionQueueObject implements Serializable {
 
     private Class<?> _type;
 
-    // used for deserialization
-    @SuppressWarnings("unused")
-    private CommChannel() {}
+    public CommChannel() {}
     
     public CommChannel(Class<?> type) {
         _type = type;
     }
 
+    public void setType(Class<?> type) {
+        if (_type != null && _type != type) {
+            throw new IllegalStateException("Type is already set!");
+        }
+        _type = type;
+    }
+    
     public Class<?> getType() {
         return _type;
     }
 
     public String toString() {
-        StringBuffer buf = new StringBuffer(_type.getSimpleName());
+        StringBuffer buf = new StringBuffer(_type == null ? "<unbound>" : _type.getSimpleName());
         if (getDescription() != null) {
             buf.append(':').append(getDescription());
         }

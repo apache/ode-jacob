@@ -46,6 +46,7 @@ public class ChannelFactory {
         InvocationHandler h = new ChannelInvocationHandler(backend);
         Class<?>[] ifaces = new Class[] { ChannelProxy.class, type };
         Object proxy = Proxy.newProxyInstance(ChannelProxy.class.getClassLoader(), ifaces, h);
+        backend.setType(type);
         return (Channel) proxy;
     }
 

@@ -98,6 +98,8 @@ public class ExecutionQueueImpl implements ExecutionQueue {
 
     private Map<Object, LinkedList<IndexedObject>> _index = new LinkedHashMap<Object, LinkedList<IndexedObject>>();
 
+    public ExecutionQueueImpl() {}
+    
     public ExecutionQueueImpl(ClassLoader classLoader) {
         _classLoader = classLoader;
     }

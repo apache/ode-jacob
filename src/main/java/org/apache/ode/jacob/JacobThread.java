@@ -47,7 +47,7 @@ public interface JacobThread {
      * @param description
      * @return
      */
-    public ChannelRef newCommChannel(Class<?> channelType, String creator, String description);
+    public ChannelRef newCommChannel(String description);
     
     /**
      * DOCUMENT ME

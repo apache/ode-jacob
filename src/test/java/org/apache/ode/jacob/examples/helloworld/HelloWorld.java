@@ -231,10 +231,10 @@ public class HelloWorld extends JacobObject implements Runnable {
 
     protected void calculusHelloWorld() {
         // new(out)
-        final ChannelRef out = newCommChannel(Val.class, "calculusHelloWorld-out");
+        final ChannelRef out = newCommChannel("calculusHelloWorld-out");
         // new(x)
-        final ChannelRef x = newCommChannel(Val.class, "calculusHelloWorld-x");
-
+        final ChannelRef x = newCommChannel("calculusHelloWorld-x");
+        
         // *(?out(str).!sysout(str))
         subscribe(true, out, new PrinterMessageListener());
         // *(?x(str).!out(str))
