@@ -89,7 +89,7 @@ public class Jacob {
      * @param channel
      * @return
      */
-    public static CommChannel importCommChannel(String channelId, Class<?> channelType) {
+    public static ChannelRef importCommChannel(String channelId, Class<?> channelType) {
         return JacobVPU.activeJacobThread().importCommChannel(channelId, channelType);
     }
     

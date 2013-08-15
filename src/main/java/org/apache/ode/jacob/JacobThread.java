@@ -61,7 +61,7 @@ public interface JacobThread {
      * @param channel
      * @return
      */
-    public CommChannel importCommChannel(String channelId, Class<?> channelType);
+    public ChannelRef importCommChannel(String channelId, Class<?> channelType);
     
     /**
      * Send a message. 

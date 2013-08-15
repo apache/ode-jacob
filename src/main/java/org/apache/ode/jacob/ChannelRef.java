@@ -21,6 +21,7 @@ package org.apache.ode.jacob;
 import java.io.Serializable;
 
 import org.apache.ode.jacob.soup.CommChannel;
+import org.apache.ode.jacob.vpu.JacobVPU;
 
 
 
@@ -53,6 +54,14 @@ public class ChannelRef implements Serializable {
     
     public Type getType() {
         return type;
+    }
+    
+    public String export() {
+        if (type == Type.CHANNEL) {
+            return JacobVPU.activeJacobThread().exportCommChannel(((CommChannel)target));
+        } else {
+            throw new UnsupportedOperationException("Cannot export channels of type " + type.toString());
+        }
     }
 
     @SuppressWarnings("unchecked")

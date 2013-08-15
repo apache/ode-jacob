@@ -18,7 +18,12 @@
  */
 package org.apache.ode.jacob.examples.helloworld;
 
-import static org.apache.ode.jacob.Jacob.*;
+import static org.apache.ode.jacob.Jacob.instance;
+import static org.apache.ode.jacob.Jacob.newChannel;
+import static org.apache.ode.jacob.Jacob.newCommChannel;
+import static org.apache.ode.jacob.Jacob.object;
+import static org.apache.ode.jacob.Jacob.sendMessage;
+import static org.apache.ode.jacob.Jacob.subscribe;
 
 import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.JacobObject;
@@ -29,7 +34,6 @@ import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;
 import org.apache.ode.jacob.oo.Val;
-import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.soup.jackson.JacksonExecutionQueueImpl;
 import org.apache.ode.jacob.soup.jackson.JacobModule;
 import org.apache.ode.jacob.vpu.JacobVPU;
@@ -316,7 +320,7 @@ public class HelloWorld extends JacobObject implements Runnable {
 
     @Override
     public void run() {
-//        simpleHelloWorld();
+        simpleHelloWorld();
 //        reliableHelloWorld();
 //        sequencedHelloWorld();
         calculusHelloWorld();

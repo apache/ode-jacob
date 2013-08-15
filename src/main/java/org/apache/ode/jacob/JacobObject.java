@@ -22,10 +22,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import org.apache.ode.jacob.oo.Channel;
-import org.apache.ode.jacob.oo.ChannelListener;
 import org.apache.ode.jacob.oo.ClassUtil;
-import org.apache.ode.jacob.vpu.JacobVPU;
 
 /**
  * Base class for constructs which rely on a Java method body to represent some
@@ -36,14 +33,6 @@ public abstract class JacobObject implements Serializable {
     public Set<Method> getImplementedMethods() {
     	return null;
     }
-
-    /**
-     * Get the unadorned (no package) name of this class.
-     */
-    protected String getClassName() {
-        return getClass().getSimpleName();
-    }
-
 
     public Method getMethod(String methodName) {
         Set<Method> implementedMethods = getImplementedMethods();
@@ -57,7 +46,7 @@ public abstract class JacobObject implements Serializable {
     }
 
     public String toString() {
-        return "<JacobObject:" + getClassName() + ">";
+        return "<JacobObject:" + getClass().getSimpleName() + ">";
     }
 
 }

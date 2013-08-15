@@ -63,7 +63,7 @@ public abstract class ReceiveProcess extends ChannelListener {
 
     public String toString() {
         // TODO: needs improvement
-        StringBuffer buf = new StringBuffer(getClassName());
+        StringBuffer buf = new StringBuffer(getClass().getSimpleName());
         buf.append('{');
         for (Method m : getImplementedMethods()) {
             buf.append(m.getName());

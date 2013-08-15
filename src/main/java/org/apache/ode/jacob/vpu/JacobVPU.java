@@ -325,8 +325,8 @@ public final class JacobVPU {
             return ChannelFactory.createChannel(cframe, channelType);
         }
 
-        public CommChannel importCommChannel(String channelId, Class<?> channelType) {
-            return _executionQueue.consumeExport(channelId);
+        public ChannelRef importCommChannel(String channelId, Class<?> channelType) {
+            return new ChannelRef(_executionQueue.consumeExport(channelId));
         }
         
         public void object(boolean replicate, ChannelListener[] ml) {
