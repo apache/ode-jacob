@@ -1,5 +1,5 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
+R * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
  * regarding copyright ownership.  The ASF licenses this file
@@ -21,7 +21,6 @@ package org.apache.ode.jacob.soup.jackson;
 import java.util.Collection;
 
 import org.apache.ode.jacob.ChannelRef;
-import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.MessageListener;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelProxy;
@@ -83,7 +82,7 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
     }
 
     private boolean useForType(JavaType t) {
-        if (JacobObject.class.isAssignableFrom(t.getRawClass())) {
+        if (Runnable.class.isAssignableFrom(t.getRawClass())) {
             return true;
         }
         

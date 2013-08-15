@@ -18,11 +18,13 @@
  */
 package org.apache.ode.jacob;
 
+import java.io.Serializable;
+
 
 /**
  * TODO: Document...
  */
 
-public interface MessageListener {
+public interface MessageListener extends Serializable {
 	void onMessage(Message msg);
 }

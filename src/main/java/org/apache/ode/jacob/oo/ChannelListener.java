@@ -20,8 +20,8 @@ package org.apache.ode.jacob.oo;
 
 
 import java.lang.reflect.Method;
+import java.util.Set;
 
-import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.MessageListener;
 
@@ -31,7 +31,7 @@ import org.apache.ode.jacob.MessageListener;
  * class <em>and</em> implement one <code>Channel</code> interface.
  */
 @SuppressWarnings("serial")
-public abstract class ChannelListener extends JacobObject implements MessageListener {
+public abstract class ChannelListener implements MessageListener {
 
 	public void onMessage(Message msg) {
 		Method action = ClassUtil.findActionMethod(getImplementedMethods()).evaluate(msg, Method.class);
@@ -43,6 +43,10 @@ public abstract class ChannelListener extends JacobObject implements MessageList
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public Set<Method> getImplementedMethods() {
+	    return null;
 	}
 
 }

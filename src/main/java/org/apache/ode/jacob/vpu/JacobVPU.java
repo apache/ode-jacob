@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.apache.ode.jacob.ChannelRef;
-import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.JacobThread;
 import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.MessageListener;
@@ -143,7 +142,7 @@ public final class JacobVPU {
     /**
      * Add an item to the run queue.
      */
-    public void addReaction(JacobObject jo, String action, Object[] args, String desc) {
+    public void addReaction(Runnable jo, String action, Object[] args, String desc) {
         LOG.trace(">> addReaction (jo={}, method={}, args={}, desc={})", jo, action, args, desc);
 
         _executionQueue.enqueueMessage(ClassUtil.createMessage(jo, action, args, null));
@@ -166,7 +165,7 @@ public final class JacobVPU {
      */
     public void inject(Runnable concretion) {
         LOG.debug("injecting {}", concretion);
-        addReaction((JacobObject)concretion, ClassUtil.RUN_METHOD_ACTION, new Class[]{},
+        addReaction(concretion, ClassUtil.RUN_METHOD_ACTION, new Class[]{},
             (LOG.isInfoEnabled() ? concretion.toString() : null));
     }
 
@@ -252,7 +251,7 @@ public final class JacobVPU {
             LOG.trace(">> [{}] : {}", _cycle, template);
 
             _statistics.numReductionsStruct++;
-            addReaction((JacobObject)template, ClassUtil.RUN_METHOD_ACTION, new Class[]{}, 
+            addReaction(template, ClassUtil.RUN_METHOD_ACTION, new Class[]{}, 
                 LOG.isInfoEnabled() ? template.toString() : null);
         }
 
@@ -300,8 +299,8 @@ public final class JacobVPU {
             return ret;
         }
 
-        public ChannelRef newCommChannel(Class<?> channelType, String creator, String description) {
-            CommChannel chnl = new CommChannel(channelType);
+        public ChannelRef newCommChannel(String description) {
+            CommChannel chnl = new CommChannel();
             chnl.setDescription(description);
             _executionQueue.add(chnl);
 
@@ -477,8 +476,8 @@ public final class JacobVPU {
                 switch (message.getTo().getType()) {
                     case CHANNEL:
                         throw new UnsupportedOperationException();
-                    case JACOB_OBJECT:
-                        JacobObject target = message.getTo().getEndpoint(JacobObject.class);
+                    case RUNNABLE:
+                        Runnable target = message.getTo().getEndpoint(Runnable.class);
                         if (target instanceof ReceiveProcess) {
                             ((ReceiveProcess)target).onMessage(message);
                         } else {

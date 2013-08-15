@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.Expression;
-import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.soup.CommChannel;
 import org.slf4j.Logger;
@@ -57,7 +56,7 @@ public final class ClassUtil {
     	return RUN_METHOD_SET;
     }
 
-    public static Message createMessage(JacobObject target, String action, Object[] args, Channel replyTo) {
+    public static Message createMessage(Runnable target, String action, Object[] args, Channel replyTo) {
     	Message message = new Message();
         message.setTo(new ChannelRef(target));
         message.setReplyTo(replyTo == null ? null : new ChannelRef(replyTo));

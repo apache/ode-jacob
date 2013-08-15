@@ -19,10 +19,6 @@
 package org.apache.ode.jacob;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.Set;
-
-import org.apache.ode.jacob.oo.ClassUtil;
 
 /**
  * Base class for constructs which rely on a Java method body to represent some
@@ -30,20 +26,6 @@ import org.apache.ode.jacob.oo.ClassUtil;
  */
 @SuppressWarnings("serial")
 public abstract class JacobObject implements Serializable {
-    public Set<Method> getImplementedMethods() {
-    	return null;
-    }
-
-    public Method getMethod(String methodName) {
-        Set<Method> implementedMethods = getImplementedMethods();
-        implementedMethods = implementedMethods == null ? ClassUtil.runMethodSet() : implementedMethods;
-        for (Method m : implementedMethods) {
-            if (m.getName().equals(methodName)) {
-                return m;
-            }
-        }
-        throw new IllegalArgumentException("No such method \"" + methodName + "\"!");
-    }
 
     public String toString() {
         return "<JacobObject:" + getClass().getSimpleName() + ">";
