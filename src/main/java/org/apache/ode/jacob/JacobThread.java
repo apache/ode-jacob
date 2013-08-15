@@ -101,7 +101,7 @@ public interface JacobThread {
     /**
      * Create a new channel.
      */
-    public Channel newChannel(Class<?> channelType, String creator, String description);
+    public Channel newChannel(Class<?> channelType, String description);
 
     /**
      * <p>

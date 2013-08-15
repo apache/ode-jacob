@@ -264,7 +264,7 @@ public final class JacobVPU {
                     throw new IllegalStateException(
                         "Channel method '" + method + "' must only return void or an implementation of " + Channel.class.getName());
                 }
-                replyChannel = newChannel(method.getReturnType(), "", "Reply Channel");
+                replyChannel = newChannel(method.getReturnType(), "Reply Channel");
                 replyCommChannel = (CommChannel) ChannelFactory.getBackend((Channel)replyChannel);
             }
             
@@ -287,7 +287,7 @@ public final class JacobVPU {
             _executionQueue.add(grp);
         }
 
-        public Channel newChannel(Class<?> channelType, String creator, String description) {
+        public Channel newChannel(Class<?> channelType, String description) {
             CommChannel chnl = new CommChannel(channelType);
             chnl.setDescription(description);
             _executionQueue.add(chnl);
@@ -491,6 +491,7 @@ public final class JacobVPU {
                 }
                 
                 if (replyTo != null) {
+                    //XXX: All replys have the same Synch.ret() action 
                     sendMessage(ClassUtil.createMessage(replyTo, ClassUtil.SYNCH_RET_METHOD_ACTION, null, null));
                 }
 			} finally {

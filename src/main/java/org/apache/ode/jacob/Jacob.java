@@ -41,7 +41,7 @@ public class Jacob {
     public static <T extends Channel> T newChannel(Class<T> channelType, String description)
         throws IllegalArgumentException
     {
-        return (T) JacobVPU.activeJacobThread().newChannel(channelType, null, description);
+        return (T) JacobVPU.activeJacobThread().newChannel(channelType, description);
     }
 
     /**
