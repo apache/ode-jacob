@@ -21,6 +21,7 @@ package org.apache.ode.jacob;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
@@ -31,6 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Message implements Serializable {
     private static final long serialVersionUID = -2118625760125445959L;
     
+    private static final AtomicLong idGen = new AtomicLong();
+    
     private long id;
     private ChannelRef to;	
     private ChannelRef replyTo;
@@ -39,7 +42,7 @@ public class Message implements Serializable {
 	private Object body;
 
 	public Message() {
-		id = 0;	// TODO: generate id
+		id = idGen.incrementAndGet();
 		// TODO: always allocating headers may not be a good idea
 		//  checking for non-null headers in the getters below is 
 		//  not great either; should look into a better option later
@@ -111,8 +114,7 @@ public class Message implements Serializable {
     public static Message copyFrom(Message message) {
 	    Message result = new Message();
 	    
-	    //XXX: generate id
-	    result.setId(0);
+	    result.setId(idGen.incrementAndGet());
 	    
 	    result.setAction(message.getAction());
 	    result.setBody(message.getBody());
