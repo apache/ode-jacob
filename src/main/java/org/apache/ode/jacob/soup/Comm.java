@@ -29,7 +29,6 @@ package org.apache.ode.jacob.soup;
  */
 public abstract class Comm extends ExecutionQueueObject {
     private CommChannel _channel;
-    private CommGroup _group;
 
     protected Comm() {
     }
@@ -42,27 +41,11 @@ public abstract class Comm extends ExecutionQueueObject {
         return _channel;
     }
 
-    public void setChannel(CommChannel channel) {
-        _channel = channel;
-    }
-
-    public CommGroup getGroup() {
-        return _group;
-    }
-
-    public void setGroup(CommGroup group) {
-        if (_group != null) {
-            throw new IllegalStateException("Attempted to call setGroup() twice!");
-        }
-        _group = group;
-    }
-
     public String toString() {
         // TODO: maybe find a better way to do a toString and replace ObjectPrinter
         return new StringBuilder("{")
             .append(this.getClass().getSimpleName())
             .append(" chnl=").append(_channel)
-            .append(", group=").append(_group)
             .append(" }").toString();
     }
 }

@@ -118,20 +118,20 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         LOG.trace(">> add (channel={})", channel);
 
         verifyNew(channel);
-        ChannelFrame cframe = new ChannelFrame(channel.getType(), ++_objIdCounter, channel.getType().getName(), channel
-                .getDescription());
+        ChannelFrame cframe = new ChannelFrame(channel.getType(), ++_objIdCounter, 
+                channel.getDescription());
         _channels.put(cframe.getId(), cframe);
         assignId(channel, cframe.getId());
     }
 
     public void enqueueMessage(Message message) {
-        LOG.trace(">> enqueueReaction (message={})", message);
+        LOG.trace(">> enqueueMessage (message={})", message);
 
         _messages.add(message);
     }
 
     public Message dequeueMessage() {
-        LOG.trace(">> dequeueReaction ()");
+        LOG.trace(">> dequeueMessage ()");
 
         Message message = null;
         if (!_messages.isEmpty()) {
@@ -156,8 +156,9 @@ public class ExecutionQueueImpl implements ExecutionQueue {
                     throw new IllegalStateException("Send attempted on channel containing replicated send! Channel= "
                             + comm.getChannel());
                 }
-                if (group.isReplicated())
+                if (group.isReplicated()) {
                     chnlFrame.replicatedSend = true;
+                }
 
                 CommSend commSend = (CommSend) comm;
                 MessageFrame mframe = new MessageFrame(commGroupFrame, chnlFrame, commSend.getMessage());
@@ -169,10 +170,11 @@ public class ExecutionQueueImpl implements ExecutionQueue {
                     throw new IllegalStateException(
                             "Receive attempted on channel containing replicated receive! Channel= " + comm.getChannel());
                 }
-                if (group.isReplicated())
+                if (group.isReplicated()) {
                     chnlFrame.replicatedRecv = true;
+                }
                 CommRecv commRecv = (CommRecv) comm;
-                ObjectFrame oframe = new ObjectFrame(commGroupFrame, chnlFrame, commRecv.getListener());
+                ListenerFrame oframe = new ListenerFrame(commGroupFrame, chnlFrame, commRecv.getListener());
                 commGroupFrame.commFrames.add(oframe);
                 chnlFrame.objFrames.add(oframe);
             }
@@ -289,7 +291,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         for (Iterator<ChannelFrame> i = _channels.values().iterator(); i.hasNext();) {
             ChannelFrame cframe = i.next();
             sos.writeInt(cframe.objFrames.size());
-            for (Iterator<ObjectFrame> j = cframe.objFrames.iterator(); j.hasNext();) {
+            for (Iterator<ListenerFrame> j = cframe.objFrames.iterator(); j.hasNext();) {
                 sos.writeObject(j.next());
             }
             sos.writeInt(cframe.msgFrames.size());
@@ -367,10 +369,10 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         ChannelFrame cframe = _channels.get(channel.getId());
         while (cframe != null && !cframe.msgFrames.isEmpty() && !cframe.objFrames.isEmpty()) {
             MessageFrame mframe = cframe.msgFrames.iterator().next();
-            ObjectFrame oframe = cframe.objFrames.iterator().next();
+            ListenerFrame oframe = cframe.objFrames.iterator().next();
 
             Message msg = Message.copyFrom(mframe.message);
-            msg.setTo(new org.apache.ode.jacob.ChannelRef(oframe._continuation));
+            msg.setTo(new org.apache.ode.jacob.ChannelRef(oframe.listener));
             
             enqueueMessage(msg);
             if (!mframe.commGroupFrame.replicated) {
@@ -407,7 +409,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         // Add all channels reference in the group to the GC candidate set.
         for (Iterator<CommFrame> i = groupFrame.commFrames.iterator(); i.hasNext();) {
             CommFrame frame = i.next();
-            if (frame instanceof ObjectFrame) {
+            if (frame instanceof ListenerFrame) {
                 assert frame.channelFrame.objFrames.contains(frame);
                 frame.channelFrame.objFrames.remove(frame);
             } else {
@@ -438,7 +440,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
 
         boolean replicatedRecv;
 
-        Set<ObjectFrame> objFrames = new LinkedHashSet<ObjectFrame>();
+        Set<ListenerFrame> objFrames = new LinkedHashSet<ListenerFrame>();
 
         Set<MessageFrame> msgFrames = new LinkedHashSet<MessageFrame>();
 
@@ -448,7 +450,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         public ChannelFrame() {
         }
 
-        public ChannelFrame(Class<?> type, int id, String name, String description) {
+        public ChannelFrame(Class<?> type, int id, String description) {
             this.type = type;
             this.id = id;
             this.description = description;
@@ -462,7 +464,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             return refCount;
         }
         
-        public Set<ObjectFrame> getObjFrames() {
+        public Set<ListenerFrame> getObjFrames() {
             return objFrames;
         }
 
@@ -479,7 +481,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             replicatedRecv = in.readBoolean();
             int cnt = in.readInt();
             for (int i = 0; i < cnt; ++i) {
-                objFrames.add((ObjectFrame) in.readObject());
+                objFrames.add((ListenerFrame) in.readObject());
             }
             cnt = in.readInt();
             for (int i = 0; i < cnt; ++i) {
@@ -495,7 +497,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             out.writeBoolean(replicatedSend);
             out.writeBoolean(replicatedRecv);
             out.writeInt(objFrames.size());
-            for (Iterator<ObjectFrame> i = objFrames.iterator(); i.hasNext();) {
+            for (Iterator<ListenerFrame> i = objFrames.iterator(); i.hasNext();) {
                 out.writeObject(i.next());
             }
             out.writeInt(msgFrames.size());
@@ -564,28 +566,28 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         }
     }
 
-    protected static class ObjectFrame extends CommFrame implements Externalizable {
+    protected static class ListenerFrame extends CommFrame implements Externalizable {
         private static final long serialVersionUID = -7212430608484116919L;
 
-        MessageListener _continuation;
+        MessageListener listener;
 
         // Used for deserialization
-        public ObjectFrame() {
+        public ListenerFrame() {
         }
 
-        public ObjectFrame(CommGroupFrame commGroupFrame, ChannelFrame channelFrame, MessageListener continuation) {
+        public ListenerFrame(CommGroupFrame commGroupFrame, ChannelFrame channelFrame, MessageListener listener) {
             super(commGroupFrame, channelFrame);
-            this._continuation = continuation;
+            this.listener = listener;
         }
 
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             super.readExternal(in);
-            _continuation = (ChannelListener)in.readObject();
+            listener = (ChannelListener)in.readObject();
         }
 
         public void writeExternal(ObjectOutput out) throws IOException {
             super.writeExternal(out);
-            out.writeObject(_continuation);
+            out.writeObject(listener);
         }
     }
 

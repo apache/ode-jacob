@@ -196,18 +196,23 @@ public final class JacobVPU {
         return buf.toString();
     }
 
-    static String stringify(Object[] list) {
-        if (list == null) {
+    static String stringify(Object obj) {
+        if (obj == null) {
             return "";
         }
-        StringBuffer buf = new StringBuffer();
-        for (int i = 0; i < list.length; ++i) {
-            if (i > 0) {
-                buf.append(',');
+        
+        if (obj instanceof Object[]) {
+            StringBuffer buf = new StringBuffer();
+            for (int i = 0; i < ((Object[])obj).length; ++i) {
+                if (i > 0) {
+                    buf.append(',');
+                }
+                buf.append(((Object[])obj)[i]);
             }
-            buf.append(list[i]);
+            return buf.toString();
+        } else {
+            return obj.toString();
         }
-        return buf.toString();
     }
 
     public void setClassLoader(ClassLoader classLoader) {
@@ -252,11 +257,6 @@ public final class JacobVPU {
         }
 
         public Channel message(Channel channel, Method method, Object[] args) {
-            LOG.trace(">> [{}] : {} ! {} ({})", _cycle, channel, method.getName(),
-                LOG.isTraceEnabled() ? stringify(args) : null);
-
-            _statistics.messagesSent++;
-
             Channel replyChannel = null;
             CommChannel replyCommChannel = null;
             // Check for synchronous methods; create a synchronization channel
@@ -277,6 +277,11 @@ public final class JacobVPU {
         }
         
         public void sendMessage(Message msg) {
+            LOG.trace(">> [{}] : {} ! {} ({})", _cycle, msg.getTo(), msg.getAction(),
+                    LOG.isTraceEnabled() ? stringify(msg.getBody()) : null);
+
+            _statistics.messagesSent++;
+
             CommGroup grp = new CommGroup(false);
             CommSend send = new CommSend(msg);
             grp.add(send);

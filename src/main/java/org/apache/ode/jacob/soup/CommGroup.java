@@ -55,7 +55,6 @@ public class CommGroup extends ExecutionQueueObject {
     }
 
     public void add(Comm comm) {
-        comm.setGroup(this);
         _comms.add(comm);
     }
 

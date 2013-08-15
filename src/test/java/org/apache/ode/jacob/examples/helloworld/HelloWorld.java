@@ -25,6 +25,12 @@ import static org.apache.ode.jacob.Jacob.object;
 import static org.apache.ode.jacob.Jacob.sendMessage;
 import static org.apache.ode.jacob.Jacob.subscribe;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.Message;
@@ -321,14 +327,19 @@ public class HelloWorld extends JacobObject implements Runnable {
     @Override
     public void run() {
         simpleHelloWorld();
-//        reliableHelloWorld();
-//        sequencedHelloWorld();
+        reliableHelloWorld();
+        sequencedHelloWorld();
         calculusHelloWorld();
     }
 
     public static void main(String args[]) throws Exception {
         // enable logging
-        //BasicConfigurator.configure();
+        // BasicConfigurator.configure();
+        List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
+        loggers.add(LogManager.getRootLogger());
+        for ( Logger logger : loggers ) {
+            logger.setLevel(Level.OFF);
+        }
         
         SmileFactory sf = null; 
         // // enable smile:
@@ -360,7 +371,7 @@ public class HelloWorld extends JacobObject implements Runnable {
     public static JacksonExecutionQueueImpl loadAndRestoreQueue(ObjectMapper mapper, JacksonExecutionQueueImpl in) throws Exception {
         byte[] json = mapper.writeValueAsBytes(in);
         // print json
-        System.out.println(new String(json));
+        // System.out.println(new String(json));
         JacksonExecutionQueueImpl q2 = mapper.readValue(json, JacksonExecutionQueueImpl.class);
         return q2;
     }
