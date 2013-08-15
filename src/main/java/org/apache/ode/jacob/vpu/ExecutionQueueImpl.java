@@ -399,7 +399,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             throw new IllegalArgumentException("The object " + so + " is not new!");
     }
 
-    private void assignId(ExecutionQueueObject so, Object id) {
+    private void assignId(ExecutionQueueObject so, Integer id) {
         so.setId(id);
     }
 

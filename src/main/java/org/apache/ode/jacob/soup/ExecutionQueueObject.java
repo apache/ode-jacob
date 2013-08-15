@@ -28,7 +28,7 @@ public class ExecutionQueueObject {
     /**
      * A unique idefntifer for this object in the queue (should only be set by queue).
      */
-    private Object _id;
+    private Integer _id;
 
     /**
      * A human-readable description of the object.
@@ -46,14 +46,14 @@ public class ExecutionQueueObject {
         _description = description;
     }
 
-    public void setId(Object id) {
+    public void setId(Integer id) {
         if (_id != null) {
             throw new IllegalStateException("Object id already set for " + this);
         }
         _id = id;
     }
 
-    public Object getId() {
+    public Integer getId() {
         return _id;
     }
 

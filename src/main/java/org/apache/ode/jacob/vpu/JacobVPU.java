@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.JacobThread;
 import org.apache.ode.jacob.Message;
@@ -294,7 +295,7 @@ public final class JacobVPU {
             return ret;
         }
 
-        public CommChannel newCommChannel(Class<?> channelType, String creator, String description) {
+        public ChannelRef newCommChannel(Class<?> channelType, String creator, String description) {
             CommChannel chnl = new CommChannel(channelType);
             chnl.setDescription(description);
             _executionQueue.add(chnl);
@@ -302,7 +303,7 @@ public final class JacobVPU {
             LOG.trace(">> [{}] : new {}", _cycle, chnl);
 
             _statistics.channelsCreated++;
-            return chnl;
+            return new ChannelRef(chnl);
         }
         
         public String exportChannel(Channel channel) {
@@ -375,7 +376,8 @@ public final class JacobVPU {
             _executionQueue.add(grp);
         }
         
-        public void subscribe(boolean replicate, CommChannel channel, MessageListener listener) {
+        public void subscribe(boolean replicate, ChannelRef channel, MessageListener listener) {
+            assert channel.getType() == ChannelRef.Type.CHANNEL;
             if (LOG.isTraceEnabled()) {
                 StringBuffer msg = new StringBuffer();
                 msg.append(_cycle);
@@ -389,13 +391,14 @@ public final class JacobVPU {
             _statistics.numContinuations++;
 
             CommGroup grp = new CommGroup(replicate);
-            CommRecv recv = new CommRecv(channel, listener);
+            CommRecv recv = new CommRecv(channel.getEndpoint(CommChannel.class), listener);
             grp.add(recv);
 
             _executionQueue.add(grp);
         }
 
-        public void subscribe(boolean replicate, CommChannel channel, MessageListener listeners[]) {
+        public void subscribe(boolean replicate, ChannelRef channel, MessageListener listeners[]) {
+            assert channel.getType() == ChannelRef.Type.CHANNEL;
             if (LOG.isTraceEnabled()) {
                 StringBuffer msg = new StringBuffer();
                 msg.append(_cycle);
@@ -413,7 +416,7 @@ public final class JacobVPU {
 
             CommGroup grp = new CommGroup(replicate);
             for (int i = 0; i < listeners.length; ++i) {
-                CommRecv recv = new CommRecv(channel, listeners[i]);
+                CommRecv recv = new CommRecv(channel.getEndpoint(CommChannel.class), listeners[i]);
                 grp.add(recv);
             }
             _executionQueue.add(grp);

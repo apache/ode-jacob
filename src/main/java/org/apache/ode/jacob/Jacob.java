@@ -71,7 +71,7 @@ public class Jacob {
      * @param channel
      * @return
      */
-    public static CommChannel newCommChannel(Class<?> channelType, String description) {
+    public static ChannelRef newCommChannel(Class<?> channelType, String description) {
         return JacobVPU.activeJacobThread().newCommChannel(channelType, null, description);
     }
     
@@ -103,11 +103,11 @@ public class Jacob {
         JacobVPU.activeJacobThread().sendMessage(message);
     }
 
-    public static void subscribe(boolean replicate, CommChannel channel, MessageListener messageListener) throws IllegalArgumentException {
+    public static void subscribe(boolean replicate, ChannelRef channel, MessageListener messageListener) throws IllegalArgumentException {
         JacobVPU.activeJacobThread().subscribe(replicate, channel, messageListener);
     }
     
-    public static void subscribe(boolean replicate, CommChannel channel, MessageListener[] messageListeners) throws IllegalArgumentException {
+    public static void subscribe(boolean replicate, ChannelRef channel, MessageListener[] messageListeners) throws IllegalArgumentException {
         JacobVPU.activeJacobThread().subscribe(replicate, channel, messageListeners);
     }
 

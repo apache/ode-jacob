@@ -19,12 +19,11 @@
 package org.apache.ode.jacob.soup.jackson;
 
 import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelProxy;
 import org.apache.ode.jacob.soup.CommChannel;
+import org.apache.ode.jacob.soup.jackson.JacksonExecutionQueueImpl.ExecutionQueueImplSerializer;
 import org.apache.ode.jacob.vpu.ChannelFactory;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -45,10 +44,11 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  */
 public class ChannelProxySerializer extends StdSerializer<ChannelProxy>{
 
-    private final Set<Integer> serializedChannels = new LinkedHashSet<Integer>();
+    private final ExecutionQueueImplSerializer executionQueueImplSerializer;
     
-    protected ChannelProxySerializer() {
+    protected ChannelProxySerializer(ExecutionQueueImplSerializer executionQueueImplSerializer) {
         super(ChannelProxy.class);
+        this.executionQueueImplSerializer = executionQueueImplSerializer;
     }
 
     @Override
@@ -79,11 +79,7 @@ public class ChannelProxySerializer extends StdSerializer<ChannelProxy>{
         jgen.writeNumberField("channelId", cid);
 
         // save channel id for garbage collection
-        serializedChannels.add(cid);
-    }
-
-    public Set<Integer> getSerializedChannels() {
-        return serializedChannels;
+        executionQueueImplSerializer.markChannelUsed(cid);
     }
 
 }

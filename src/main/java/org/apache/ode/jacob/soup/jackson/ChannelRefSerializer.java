@@ -22,9 +22,10 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import org.apache.ode.jacob.ChannelRef;
-import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.ChannelRef.Type;
 import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.soup.CommChannel;
+import org.apache.ode.jacob.soup.jackson.JacksonExecutionQueueImpl.ExecutionQueueImplSerializer;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -41,8 +42,11 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  */
 public class ChannelRefSerializer extends StdSerializer<ChannelRef> {
 
-    public ChannelRefSerializer() {
+    private final ExecutionQueueImplSerializer executionQueueImplSerializer;
+
+    public ChannelRefSerializer(ExecutionQueueImplSerializer executionQueueImplSerializer) {
         super(ChannelRef.class);
+        this.executionQueueImplSerializer = executionQueueImplSerializer;
     }
     
     @Override
@@ -71,6 +75,10 @@ public class ChannelRefSerializer extends StdSerializer<ChannelRef> {
             Field targetField = ChannelRef.class.getDeclaredField("target");
             targetField.setAccessible(true);
             jgen.writeObjectField("target", targetField.get(value));
+            
+            if (value.getType() == Type.CHANNEL) {
+                executionQueueImplSerializer.markChannelUsed(value.getEndpoint(CommChannel.class).getId());
+            }
             
         } catch (Exception ex) {
             throw new RuntimeException(ex);

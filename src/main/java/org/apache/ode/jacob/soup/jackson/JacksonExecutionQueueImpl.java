@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.ode.jacob.Message;
@@ -59,11 +60,14 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
 	
     public static class ExecutionQueueImplSerializer extends StdSerializer<JacksonExecutionQueueImpl> {
 
-        private ChannelProxySerializer channelProxySerializer;
-
-        public ExecutionQueueImplSerializer(ChannelProxySerializer cps) {
+        private Set<Integer> usedChannels = new LinkedHashSet<Integer>();
+        
+        public ExecutionQueueImplSerializer() {
             super(JacksonExecutionQueueImpl.class);
-            this.channelProxySerializer = cps;
+        }
+        
+        public void markChannelUsed(int channelId) {
+            usedChannels.add(channelId);
         }
         
         @Override
@@ -88,7 +92,7 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
         private void serializeContents(JacksonExecutionQueueImpl value, JsonGenerator jgen,
                 SerializerProvider provider) throws JsonGenerationException, IOException {
 
-            channelProxySerializer.getSerializedChannels().clear();
+            usedChannels.clear();
             
         	// write metadata
             jgen.writeNumberField("objIdCounter", value._objIdCounter);
@@ -111,14 +115,13 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
             nullgen.writeObjectField("channels", value._channels.values().toArray(new ChannelFrame[] {}));
 
             // remove unreferenced channels (and keep those which have been exported using export()).
-            Set<Integer> referencedChannels = channelProxySerializer.getSerializedChannels();
             for (Iterator<ChannelFrame> i = value._channels.values().iterator(); i.hasNext();) {
                 ChannelFrame cframe = i.next();
-                if (referencedChannels.contains(cframe.getId()) || cframe.getRefCount() > 0) {
+                if (usedChannels.contains(cframe.getId()) || cframe.getRefCount() > 0) {
                     // skip
                 } else {
                     LOG.debug("GC Channel: {}", cframe);
-                    //i.remove();
+                    i.remove();
                 }
             }
 

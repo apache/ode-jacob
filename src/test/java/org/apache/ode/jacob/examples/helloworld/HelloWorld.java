@@ -221,9 +221,9 @@ public class HelloWorld extends JacobObject implements Runnable {
 
     protected void calculusHelloWorld() {
         // new(out)
-        final CommChannel out = newCommChannel(Val.class, "calculusHelloWorld-out");
+        final ChannelRef out = newCommChannel(Val.class, "calculusHelloWorld-out");
         // new(x)
-        final CommChannel x = newCommChannel(Val.class, "calculusHelloWorld-x");
+        final ChannelRef x = newCommChannel(Val.class, "calculusHelloWorld-x");
 
         // *(?out(str).!sysout(str))
         subscribe(true, out, new PrinterMessageListener());
@@ -244,16 +244,16 @@ public class HelloWorld extends JacobObject implements Runnable {
     }
     
     static class ForwarderMessageListener implements MessageListener {
-        private CommChannel to;
+        private ChannelRef to;
         
         @JsonCreator
-        public ForwarderMessageListener(@JsonProperty("to") CommChannel to) {
+        public ForwarderMessageListener(@JsonProperty("to") ChannelRef to) {
             this.to = to;
         }
 
         @Override
         public void onMessage(Message msg) {
-            Message msg2 = new Message(new ChannelRef(to), null, msg.getAction());
+            Message msg2 = new Message(to, null, msg.getAction());
             msg2.setBody(msg.getBody());
             sendMessage(msg2);
         }
@@ -261,16 +261,16 @@ public class HelloWorld extends JacobObject implements Runnable {
     
     static class StringEmitterRunnable extends JacobObject implements Runnable {
         private String str;
-        private CommChannel to;
+        private ChannelRef to;
 
         @JsonCreator
-        public StringEmitterRunnable(@JsonProperty("str") String str, @JsonProperty("to") CommChannel to) {
+        public StringEmitterRunnable(@JsonProperty("str") String str, @JsonProperty("to") ChannelRef to) {
             this.str = str;
             this.to = to;
         }
 
         public void run() {
-            Message msg = new Message(new ChannelRef(to), null, "printHW");
+            Message msg = new Message(to, null, "printHW");
             msg.setBody(str);
             sendMessage(msg);
         }

@@ -47,7 +47,7 @@ public interface JacobThread {
      * @param description
      * @return
      */
-    public CommChannel newCommChannel(Class<?> channelType, String creator, String description);
+    public ChannelRef newCommChannel(Class<?> channelType, String creator, String description);
     
     /**
      * DOCUMENT ME
@@ -71,8 +71,8 @@ public interface JacobThread {
      */
     public void sendMessage(Message message);
 
-    public void subscribe(boolean replicate, CommChannel channel, MessageListener methodList) throws IllegalArgumentException;
-    public void subscribe(boolean replicate, CommChannel channel, MessageListener[] methodList) throws IllegalArgumentException;
+    public void subscribe(boolean replicate, ChannelRef channel, MessageListener methodList) throws IllegalArgumentException;
+    public void subscribe(boolean replicate, ChannelRef channel, MessageListener[] methodList) throws IllegalArgumentException;
 
     // OO oriented API
     
