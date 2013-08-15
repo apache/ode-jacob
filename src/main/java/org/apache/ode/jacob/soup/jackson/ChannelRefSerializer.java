@@ -19,6 +19,7 @@
 package org.apache.ode.jacob.soup.jackson;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.JacobObject;
@@ -66,7 +67,13 @@ public class ChannelRefSerializer extends StdSerializer<ChannelRef> {
     private void serializeContents(ChannelRef value, JsonGenerator jgen,
             SerializerProvider provider) throws JsonGenerationException, IOException {
         
-        jgen.writeObjectField("target", value.getEndpoint(value.getType() == ChannelRef.Type.CHANNEL 
-                ? CommChannel.class : JacobObject.class));
+        try {
+            Field targetField = ChannelRef.class.getDeclaredField("target");
+            targetField.setAccessible(true);
+            jgen.writeObjectField("target", targetField.get(value));
+            
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

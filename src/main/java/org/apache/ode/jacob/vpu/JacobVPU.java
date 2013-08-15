@@ -466,12 +466,23 @@ public final class JacobVPU {
 
             long ctime = System.currentTimeMillis();
             try {
-            	JacobObject target = message.getTo().getEndpoint(JacobObject.class);
-            	if (target instanceof ReceiveProcess) {
-            		((ReceiveProcess)target).onMessage(message);
-            	} else {
-            		((Runnable)target).run();
-            	}
+                switch (message.getTo().getType()) {
+                    case CHANNEL:
+                        throw new UnsupportedOperationException();
+                    case JACOB_OBJECT:
+                        JacobObject target = message.getTo().getEndpoint(JacobObject.class);
+                        if (target instanceof ReceiveProcess) {
+                            ((ReceiveProcess)target).onMessage(message);
+                        } else {
+                            ((Runnable)target).run();
+                        }
+                        break;
+                    case MESSAGE_LISTENER:
+                        MessageListener ml = message.getTo().getEndpoint(MessageListener.class);
+                        ml.onMessage(message);
+                        break;
+                }
+                
                 if (replyTo != null) {
                     sendMessage(ClassUtil.createMessage(replyTo, ClassUtil.SYNCH_RET_METHOD_ACTION, null, null));
                 }

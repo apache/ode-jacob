@@ -29,7 +29,7 @@ import org.apache.ode.jacob.soup.CommChannel;
  */
 
 public class ChannelRef implements Serializable {
-    public enum Type { JACOB_OBJECT, CHANNEL }
+    public enum Type { JACOB_OBJECT, CHANNEL, MESSAGE_LISTENER }
     
     private static final long serialVersionUID = 1L;
 
@@ -37,7 +37,17 @@ public class ChannelRef implements Serializable {
     private final Object target;
     
     public ChannelRef(Object target) {
-        type = target instanceof CommChannel ? Type.CHANNEL : Type.JACOB_OBJECT;
+        assert target != null;
+        if (target instanceof CommChannel) {
+            type = Type.CHANNEL;
+        } else if (target instanceof JacobObject) {
+            type = Type.JACOB_OBJECT;
+        } else if (target instanceof MessageListener) {
+            type = Type.MESSAGE_LISTENER;
+        } else {
+            throw new IllegalArgumentException("Unsupported endpoint reference");
+        }
+        
         this.target = target;
     }
     
@@ -50,6 +60,8 @@ public class ChannelRef implements Serializable {
         if (type.equals(Type.JACOB_OBJECT) && JacobObject.class.isAssignableFrom(clazz)) {
             return (T)target;
         } else if (type.equals(Type.CHANNEL) && CommChannel.class.isAssignableFrom(clazz)) {
+            return (T)target;
+        } else if (type.equals(Type.MESSAGE_LISTENER) && MessageListener.class.isAssignableFrom(clazz)) {
             return (T)target;
         }
         
