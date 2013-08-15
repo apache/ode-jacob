@@ -27,6 +27,7 @@ import org.apache.ode.jacob.soup.jackson.JacobModule;
 import org.apache.ode.jacob.vpu.JacobVPU;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -76,7 +77,8 @@ public class JacksonSoupTest {
      * @throws Exception
      */
     @Test
-    public void testSimpleHelloWorldSerialize() throws Exception {
+    @Ignore("ignore this test until soup structure is stable")
+    public void testSimpleHelloWorldSerializeAndTestAgainstFixtures() throws Exception {
         JacobVPU vpu = new JacobVPU();
         vpu.setContext(queue);
         vpu.inject(new HelloWorld() {
@@ -103,7 +105,8 @@ public class JacksonSoupTest {
      * @throws Exception
      */
     @Test
-    public void testSimpleHelloWorldDeserialize() throws Exception {
+    @Ignore("ignore this test until soup structure is stable")
+    public void testSimpleHelloWorldDeserializeFromFixtures() throws Exception {
         JacobVPU vpu = new JacobVPU();
         
         for (String state : fixtures) {
@@ -116,6 +119,40 @@ public class JacksonSoupTest {
             // sum of pre-loaded & then-completed steps is always 8.
             Assert.assertEquals(8, i + fixtures.indexOf(state));
         }
-        
     }
+    
+    @Test
+    public void testSimpleHelloWorldSerializeAndDeserialize() throws Exception {
+        List<String> states = new ArrayList<String>();
+        
+        JacobVPU vpu = new JacobVPU();
+        vpu.setContext(queue);
+        vpu.inject(new HelloWorld() {
+            @Override
+            public void run() {
+                simpleHelloWorld();
+            }
+        });
+        
+        int i = 0;
+        while (vpu.execute()) {
+            String ser = mapper.writeValueAsString(queue);
+            states.add(ser);
+            i++;
+        }
+        Assert.assertEquals(9, i);
+        
+        // deserialize
+        for (String state : states) {
+            vpu.setContext(mapper.readValue(state, JacksonExecutionQueueImpl.class));
+            i = 0;
+            while (vpu.execute()) {
+                i++;
+            }
+            
+            // sum of pre-loaded & then-completed steps is always 8.
+            Assert.assertEquals(8, i + states.indexOf(state));
+        }
+    }
+
 }
