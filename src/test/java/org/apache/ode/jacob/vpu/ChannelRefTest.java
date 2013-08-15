@@ -27,7 +27,7 @@ import org.apache.ode.jacob.soup.CommChannel;
 
 import org.junit.Test;
 
-public class ChannelTest {
+public class ChannelRefTest {
 
     @Test
     public void testConnectWithInterface() {
