@@ -118,7 +118,7 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
                     // skip
                 } else {
                     LOG.debug("GC Channel: {}", cframe);
-                    i.remove();
+                    //i.remove();
                 }
             }
 
