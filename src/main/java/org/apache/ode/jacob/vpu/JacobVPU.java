@@ -251,7 +251,7 @@ public final class JacobVPU {
             LOG.trace(">> [{}] : {}", _cycle, template);
 
             _statistics.numReductionsStruct++;
-            addReaction(template, ClassUtil.RUN_METHOD_ACTION, new Class[]{}, 
+            addReaction(template, ClassUtil.RUN_METHOD_ACTION, null, 
                 LOG.isInfoEnabled() ? template.toString() : null);
         }
 
