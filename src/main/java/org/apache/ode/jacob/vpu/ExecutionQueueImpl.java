@@ -510,7 +510,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         public String toString() {
             StringBuffer buf = new StringBuffer(32);
             buf.append("{CFRAME ");
-            buf.append(type.getSimpleName());
+            buf.append(type == null ? "untyped" : type.getSimpleName());
             buf.append(':');
             buf.append(description);
             buf.append('#');
