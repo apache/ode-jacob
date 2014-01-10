@@ -113,6 +113,7 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
             // write channels to null serializer
             JsonGenerator nullgen = new NullJsonGenerator(null, 0, jgen.getCodec());
             nullgen.writeObjectField("channels", value._channels.values().toArray(new ChannelFrame[] {}));
+            nullgen.close();
 
             // remove unreferenced channels (and keep those which have been exported using export()).
             for (Iterator<ChannelFrame> i = value._channels.values().iterator(); i.hasNext();) {

@@ -35,7 +35,6 @@ public class ChannelRefTest {
         vpu.setContext(new ExecutionQueueImpl());
         
         vpu.inject(new Runnable() {
-            
             @Override
             public void run() {
                 ChannelRef cref = newCommChannel("unbound channel");
@@ -60,7 +59,6 @@ public class ChannelRefTest {
                 Val val2 = cref.getEndpoint(Val.class);
                 assertNotNull(val2);
                 assertSame(val, val2);
-
             }
         });
         

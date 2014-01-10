@@ -332,7 +332,8 @@ public class HelloWorld extends JacobObject implements Runnable {
         calculusHelloWorld();
     }
 
-    public static void main(String args[]) throws Exception {
+	@SuppressWarnings("unchecked")
+	public static void main(String args[]) throws Exception {
         // enable logging
         // BasicConfigurator.configure();
         List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
