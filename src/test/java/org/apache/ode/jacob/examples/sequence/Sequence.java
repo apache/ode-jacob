@@ -53,7 +53,7 @@ public abstract class Sequence extends JacobObject implements Runnable {
             }
         } else {
             Synch r = newChannel(Synch.class);
-            object(new SequenceReceiveProcess().setChannel(r).setReceiver(new SequenceSynch(data, this)));
+            object(new ReceiveProcess().setChannel(r).setReceiver(new SequenceSynch(data, this)));
             instance(doStep(data._current, r));
         }
     }
@@ -73,7 +73,6 @@ public abstract class Sequence extends JacobObject implements Runnable {
         //public Sequence _seq;
     }
 
-    static class SequenceReceiveProcess extends ReceiveProcess {}
     static class SequenceSynch implements Synch {
         private final SequenceData data;
         private final Sequence parent;

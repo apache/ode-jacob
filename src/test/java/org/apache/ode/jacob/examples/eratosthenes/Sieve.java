@@ -73,9 +73,7 @@ public class Sieve extends JacobObject implements Runnable {
 
     public void run() {
         Synch ret = newChannel(Synch.class);
-        object(new ReceiveProcess() {
-            private static final long serialVersionUID = -4336285925619915276L;
-        }.setChannel(ret).setReceiver(new Synch() {
+        object(new ReceiveProcess().setChannel(ret).setReceiver(new Synch() {
             public void ret() {
                 instance(new Counter(_out, _n+1));
             }
@@ -106,14 +104,10 @@ public class Sieve extends JacobObject implements Runnable {
     }
 
     public void run() {
-      object(new ReceiveProcess() {
-          private static final long serialVersionUID = -2145752474431263689L;
-      }.setChannel(_in).setReceiver(new NaturalNumberStream() {
+      object(new ReceiveProcess().setChannel(_in).setReceiver(new NaturalNumberStream() {
         public void val(final int n, final Synch ret) {
             Synch r = newChannel(Synch.class);
-            object(new ReceiveProcess() {
-                private static final long serialVersionUID = -3009595654233593893L;
-            }.setChannel(r).setReceiver(new Synch() {
+            object(new ReceiveProcess().setChannel(r).setReceiver(new Synch() {
                 public void ret() {
                   NaturalNumberStream x = newChannel(NaturalNumberStream.class);
                   instance(new PrimeFilter(n, _in, x));
@@ -135,9 +129,7 @@ public class Sieve extends JacobObject implements Runnable {
       _in = in;
     }
     public void run() {
-      object(true, new ReceiveProcess() {
-          private static final long serialVersionUID = 7671019806323866866L;
-      }.setChannel(_in).setReceiver(new NaturalNumberStream(){
+      object(true, new ReceiveProcess().setChannel(_in).setReceiver(new NaturalNumberStream(){
         public void val(int n, Synch ret) {
           _cnt ++;
           _last = n;
@@ -169,15 +161,11 @@ public class Sieve extends JacobObject implements Runnable {
       _out = out;
     }
     public void run() {
-       object(true, new ReceiveProcess() {
-           private static final long serialVersionUID = 2523405590764193613L;
-       }.setChannel(_in).setReceiver(new NaturalNumberStream() {
+       object(true, new ReceiveProcess().setChannel(_in).setReceiver(new NaturalNumberStream() {
           public void val(int n, final Synch ret) {
               if (n % _prime != 0) {
                   Synch r = newChannel(Synch.class);
-                  object(new ReceiveProcess() {
-                      private static final long serialVersionUID = 2523405590764193613L;
-                  }.setChannel(r).setReceiver(new Synch() {
+                  object(new ReceiveProcess().setChannel(r).setReceiver(new Synch() {
                       public void ret() {
                           ret.ret();
                       }

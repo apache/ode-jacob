@@ -77,10 +77,9 @@ public class HelloWorld extends JacobObject implements Runnable {
         }
 
         public void run() {
-            object(true, new ReliablePrinterReceiveProcess().setChannel(in).setReceiver(new ReliablePrinterCallback()));
+            object(true, new ReceiveProcess().setChannel(in).setReceiver(new ReliablePrinterCallback()));
         }
 
-        static class ReliablePrinterReceiveProcess extends ReceiveProcess {}
         static class ReliablePrinterCallback implements Callback<String, Synch> {
             public void invoke(String value, Synch callback) {
                 System.out.println(value);
@@ -101,11 +100,10 @@ public class HelloWorld extends JacobObject implements Runnable {
 
         public void run() {
             Synch callback = newChannel(Synch.class, "callback channel to ACK " + str);
-            object(new ReliableStringEmitterReceiveProcess().setChannel(callback).setReceiver(new ReliableStringEmitterSynch(str)));
+            object(new ReceiveProcess().setChannel(callback).setReceiver(new ReliableStringEmitterSynch(str)));
             to.invoke(str, callback);
         }
 
-        static class ReliableStringEmitterReceiveProcess extends ReceiveProcess {}
         static class ReliableStringEmitterSynch implements Synch {
             private String str;
 
@@ -129,10 +127,9 @@ public class HelloWorld extends JacobObject implements Runnable {
         }
 
         public void run() {
-            object(true, new PrinterProcessReceiveProcess().setChannel(_in).setReceiver(new PrinterProcessVal()));
+            object(true, new ReceiveProcess().setChannel(_in).setReceiver(new PrinterProcessVal()));
         }
 
-        static class PrinterProcessReceiveProcess extends ReceiveProcess {}
         static class PrinterProcessVal implements Val {
             public void val(Object o) {
                 System.out.println(o);
@@ -166,10 +163,9 @@ public class HelloWorld extends JacobObject implements Runnable {
         }
 
         public void run() {
-             object(true, new ForwarderProcessReceiveProcess().setChannel(in).setReceiver(new ForwarderProcessVal(out)));
+             object(true, new ReceiveProcess().setChannel(in).setReceiver(new ForwarderProcessVal(out)));
         }
 
-        static class ForwarderProcessReceiveProcess extends ReceiveProcess {}
         static class ForwarderProcessVal implements Val {
             private Val out;
             @JsonCreator

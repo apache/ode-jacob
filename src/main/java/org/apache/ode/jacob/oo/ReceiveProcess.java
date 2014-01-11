@@ -24,9 +24,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 
+public class ReceiveProcess extends ChannelListener {
+    private static final long serialVersionUID = 1L;
 
-@SuppressWarnings("serial")
-public abstract class ReceiveProcess extends ChannelListener {
     private transient Set<Method> _implementedMethods;
     private transient Channel channel;
     private Channel receiver;

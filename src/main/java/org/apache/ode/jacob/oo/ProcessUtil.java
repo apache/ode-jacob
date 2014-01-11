@@ -42,12 +42,11 @@ public final class ProcessUtil {
         return result.or(process);
     }
 
-    @SuppressWarnings("serial")
 	public static <T extends Channel> ChannelListener receive(T proxy, T listener) {
     	// TODO: NOTE: this *only* works when the listnere doesn't need to be Serialiazble really
     	//  because we cannot declare a staic serialVersionUID like this
     	//  once we fix serialization, this can be simplified significantly via a dsl
-    	return new ReceiveProcess() {}.setChannel(proxy).setReceiver(listener);
+    	return new ReceiveProcess().setChannel(proxy).setReceiver(listener);
     }
 
 }
