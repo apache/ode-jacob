@@ -72,7 +72,7 @@ public class ChannelProxySerializer extends StdSerializer<ChannelProxy>{
 
     private void serializeContents(ChannelProxy value, JsonGenerator jgen,
             SerializerProvider provider) throws JsonGenerationException, IOException {
-        CommChannel commChannel = (CommChannel) ChannelFactory.getBackend((Channel)value);
+        CommChannel commChannel = ChannelFactory.getBackend((Channel)value);
         ClassNameIdResolver idResolver = new ClassNameIdResolver(provider.constructType(commChannel.getType()), provider.getTypeFactory());
         Integer cid = (Integer)commChannel.getId();
         jgen.writeStringField("channelType", idResolver.idFromBaseType());

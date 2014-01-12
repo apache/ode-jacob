@@ -662,7 +662,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             }
 
             if (obj instanceof org.apache.ode.jacob.oo.ChannelProxy) {
-                CommChannel commChannel = (CommChannel) ChannelFactory.getBackend((Channel)obj);
+                CommChannel commChannel = ChannelFactory.getBackend((Channel)obj);
                 _serializedChannels.add(commChannel.getId());
                 return new ChannelRef(commChannel.getType(), (Integer) commChannel.getId());
             } else if (_replacementMap != null && _replacementMap.isReplaceable(obj)) {

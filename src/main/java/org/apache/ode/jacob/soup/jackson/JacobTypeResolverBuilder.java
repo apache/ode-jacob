@@ -123,7 +123,7 @@ public class JacobTypeResolverBuilder extends StdTypeResolverBuilder {
 
         public String idFromValue(Object value) {
             if (value instanceof ChannelProxy) {
-                CommChannel commChannel = (CommChannel) ChannelFactory.getBackend((Channel)value);
+                CommChannel commChannel = ChannelFactory.getBackend((Channel)value);
                 return commChannel.getType().getName();
 
             }

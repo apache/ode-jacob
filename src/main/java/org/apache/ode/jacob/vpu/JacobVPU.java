@@ -149,6 +149,18 @@ public final class JacobVPU {
         ++_statistics.runQueueEntries;
     }
 
+    public Channel newChannel(Class<?> channelType, String description) {
+        CommChannel chnl = new CommChannel(channelType);
+        chnl.setDescription(description);
+        _executionQueue.add(chnl);
+
+        Channel ret = ChannelFactory.createChannel(chnl, channelType);
+        LOG.trace(">> [{}] : new {}", _cycle, ret);
+
+        _statistics.channelsCreated++;
+        return ret;
+    }
+
     /**
      * Get the active Jacob thread, i.e. the one associated with the current Java thread.
      */
@@ -265,10 +277,10 @@ public final class JacobVPU {
                         "Channel method '" + method + "' must only return void or an implementation of " + Channel.class.getName());
                 }
                 replyChannel = newChannel(method.getReturnType(), "Reply Channel");
-                replyCommChannel = (CommChannel) ChannelFactory.getBackend((Channel)replyChannel);
+                replyCommChannel = ChannelFactory.getBackend((Channel)replyChannel);
             }
             
-            CommChannel chnl = (CommChannel) ChannelFactory.getBackend((Channel)channel);
+            CommChannel chnl = ChannelFactory.getBackend((Channel)channel);
             Message msg = ClassUtil.createMessage(chnl, ClassUtil.getActionForMethod(method), args, replyCommChannel);
 
             sendMessage(msg);
@@ -288,15 +300,7 @@ public final class JacobVPU {
         }
 
         public Channel newChannel(Class<?> channelType, String description) {
-            CommChannel chnl = new CommChannel(channelType);
-            chnl.setDescription(description);
-            _executionQueue.add(chnl);
-
-            Channel ret = ChannelFactory.createChannel(chnl, channelType);
-            LOG.trace(">> [{}] : new {}", _cycle, ret);
-
-            _statistics.channelsCreated++;
-            return ret;
+        	return JacobVPU.this.newChannel(channelType, description);
         }
 
         public ChannelRef newCommChannel(String description) {
@@ -313,7 +317,7 @@ public final class JacobVPU {
         public String exportChannel(Channel channel) {
             LOG.trace(">> [{}] : export<{}>", _cycle, channel);
 
-            CommChannel chnl = (CommChannel)ChannelFactory.getBackend((Channel)channel);
+            CommChannel chnl = ChannelFactory.getBackend((Channel)channel);
             return _executionQueue.createExport(chnl);
         }
 
@@ -432,8 +436,7 @@ public final class JacobVPU {
                     addCommChannel(group, r);
                 }
             } else if (receiver instanceof ReceiveProcess) {
-                CommChannel chnl = (CommChannel)ChannelFactory.getBackend(
-                        ((ReceiveProcess)receiver).getChannel());
+                CommChannel chnl = ChannelFactory.getBackend(((ReceiveProcess)receiver).getChannel());
                     // TODO see below..
                     // oframe.setDebugInfo(fillDebugInfo());
                     CommRecv recv = new CommRecv(chnl, receiver);

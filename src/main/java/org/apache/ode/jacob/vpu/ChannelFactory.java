@@ -37,7 +37,7 @@ public class ChannelFactory {
         }
     }
 
-    public static Object getBackend(Channel channel) {
+    public static CommChannel getBackend(Channel channel) {
         ChannelInvocationHandler cih = (ChannelInvocationHandler) Proxy.getInvocationHandler(channel);
         return cih._backend;
     }
