@@ -25,7 +25,7 @@ import java.io.Serializable;
  * aspect of the process.
  */
 @SuppressWarnings("serial")
-public abstract class Process implements Runnable, Serializable {
+public abstract class RunnableProcess implements Runnable, Serializable {
 
     public String toString() {
         return "<Process:" + getClass().getSimpleName() + ">";

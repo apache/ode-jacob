@@ -19,7 +19,7 @@
 package org.apache.ode.jacob.examples.eratosthenes;
 
 
-import org.apache.ode.jacob.Process;
+import org.apache.ode.jacob.RunnableProcess;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
@@ -41,7 +41,7 @@ import static org.apache.ode.jacob.Jacob.object;
  *
  * @author Maciej Szefler <a href="mailto:mbs@fivesight.com">mbs</a>
  */
-public class Sieve extends Process {
+public class Sieve extends RunnableProcess {
   private static final long serialVersionUID = -1303509567096202776L;
 
   private static int _cnt = 0;
@@ -63,7 +63,7 @@ public class Sieve extends Process {
    *  Counter(out, n) := out.val(n) | Counter(out, n+1)
    * </em></pre>
    */
-  private static class Counter extends Process {
+  private static class Counter extends RunnableProcess {
     private static final long serialVersionUID = 4739323750438991003L;
 
     private NaturalNumberStream _out;
@@ -95,7 +95,7 @@ public class Sieve extends Process {
    *
    *
    */
-  private static final class Head extends Process {
+  private static final class Head extends RunnableProcess {
     private static final long serialVersionUID = 1791641314141082728L;
 
     NaturalNumberStream _in;
@@ -124,7 +124,7 @@ public class Sieve extends Process {
     }
   }
 
-  private static final class Print extends Process {
+  private static final class Print extends RunnableProcess {
     private static final long serialVersionUID = -3134193737519487672L;
 
     private NaturalNumberStream _in;
@@ -151,7 +151,7 @@ public class Sieve extends Process {
    *     ! in ? [val(n)={ if(n mod prime <> 0) out.val(n) }
    * </em></prime>
    */
-  private static class PrimeFilter extends Process {
+  private static class PrimeFilter extends RunnableProcess {
     private static final long serialVersionUID = 1569523200422202448L;
 
     private int _prime;

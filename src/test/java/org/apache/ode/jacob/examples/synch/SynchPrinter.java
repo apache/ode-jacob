@@ -19,7 +19,7 @@
 package org.apache.ode.jacob.examples.synch;
 
 
-import org.apache.ode.jacob.Process;
+import org.apache.ode.jacob.RunnableProcess;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
@@ -38,7 +38,7 @@ import static org.apache.ode.jacob.Jacob.object;
  */
 public class SynchPrinter {
 
-    public static final class SystemPrinter extends Process {
+    public static final class SystemPrinter extends RunnableProcess {
         private static final long serialVersionUID = -8516348116865575605L;
 
         private SynchPrint _self;
@@ -58,7 +58,7 @@ public class SynchPrinter {
         }
     }
 
-    public static final class Tester extends Process {
+    public static final class Tester extends RunnableProcess {
         private static final long serialVersionUID = 7899682832271627464L;
 
         public void run() {

@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.MessageListener;
-import org.apache.ode.jacob.Process;
+import org.apache.ode.jacob.RunnableProcess;
 import org.apache.ode.jacob.examples.sequence.Sequence;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ReceiveProcess;
@@ -61,7 +61,7 @@ import static org.apache.ode.jacob.Jacob.subscribe;
  * 
  */
 @SuppressWarnings("serial")
-public class HelloWorld extends Process {
+public class HelloWorld extends RunnableProcess {
 
     public static interface Callback<T, R extends Channel> extends Channel {
 
@@ -69,7 +69,7 @@ public class HelloWorld extends Process {
 
     }
 
-    static class ReliablePrinterProcess extends Process {
+    static class ReliablePrinterProcess extends RunnableProcess {
         private Callback<String, Synch> in;
 
         @JsonCreator
@@ -89,7 +89,7 @@ public class HelloWorld extends Process {
         }
     }
 
-    static class ReliableStringEmitterProcess extends Process {
+    static class ReliableStringEmitterProcess extends RunnableProcess {
         private String str;
         private Callback<String, Synch> to;
 
@@ -119,7 +119,7 @@ public class HelloWorld extends Process {
         }
     }
 
-    static class PrinterProcess extends Process {
+    static class PrinterProcess extends RunnableProcess {
         private Val _in;
 
         @JsonCreator
@@ -138,7 +138,7 @@ public class HelloWorld extends Process {
         }
     }
 
-    static class StringEmitterProcess extends Process {
+    static class StringEmitterProcess extends RunnableProcess {
         private String str;
         private Val to;
 
@@ -153,7 +153,7 @@ public class HelloWorld extends Process {
         }
     }
 
-    static class ForwarderProcess extends Process {
+    static class ForwarderProcess extends RunnableProcess {
         private Val in;
         private Val out;
 
@@ -266,7 +266,7 @@ public class HelloWorld extends Process {
         }
     }
     
-    static class StringEmitterRunnable extends Process {
+    static class StringEmitterRunnable extends RunnableProcess {
         private String str;
         private ChannelRef to;
 
@@ -300,7 +300,7 @@ public class HelloWorld extends Process {
 			return new SequenceItemEmitter(greetings[step], done, out);
         }
 
-		static class SequenceItemEmitter extends Process {
+		static class SequenceItemEmitter extends RunnableProcess {
 			private final String string;
 			private final Synch done;
 			private final Val out;

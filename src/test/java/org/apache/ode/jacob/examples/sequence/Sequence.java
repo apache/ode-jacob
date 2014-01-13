@@ -19,7 +19,7 @@
 package org.apache.ode.jacob.examples.sequence;
 
 
-import org.apache.ode.jacob.Process;
+import org.apache.ode.jacob.RunnableProcess;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;
 
@@ -35,7 +35,7 @@ import static org.apache.ode.jacob.Jacob.object;
  * Abstract process that executes a number of steps sequentially.
  */
 @SuppressWarnings("serial")
-public abstract class Sequence extends Process {
+public abstract class Sequence extends RunnableProcess {
     private final SequenceData data = new SequenceData();
 
     /**
