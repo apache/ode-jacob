@@ -18,13 +18,6 @@
  */
 package org.apache.ode.jacob.examples.helloworld;
 
-import static org.apache.ode.jacob.Jacob.instance;
-import static org.apache.ode.jacob.Jacob.newChannel;
-import static org.apache.ode.jacob.Jacob.newCommChannel;
-import static org.apache.ode.jacob.Jacob.object;
-import static org.apache.ode.jacob.Jacob.sendMessage;
-import static org.apache.ode.jacob.Jacob.subscribe;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -32,9 +25,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.ode.jacob.ChannelRef;
-import org.apache.ode.jacob.JacobObject;
 import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.MessageListener;
+import org.apache.ode.jacob.Process;
 import org.apache.ode.jacob.examples.sequence.Sequence;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ReceiveProcess;
@@ -50,6 +43,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 
+import static org.apache.ode.jacob.Jacob.instance;
+import static org.apache.ode.jacob.Jacob.newChannel;
+import static org.apache.ode.jacob.Jacob.newCommChannel;
+import static org.apache.ode.jacob.Jacob.object;
+import static org.apache.ode.jacob.Jacob.sendMessage;
+import static org.apache.ode.jacob.Jacob.subscribe;
+
+
 /**
  * Simple Hello World example to showcase different
  * features and approaches of the Jacob API.
@@ -60,7 +61,7 @@ import com.fasterxml.jackson.dataformat.smile.SmileFactory;
  * 
  */
 @SuppressWarnings("serial")
-public class HelloWorld extends JacobObject implements Runnable {
+public class HelloWorld extends Process {
 
     public static interface Callback<T, R extends Channel> extends Channel {
 
@@ -68,7 +69,7 @@ public class HelloWorld extends JacobObject implements Runnable {
 
     }
 
-    static class ReliablePrinterProcess extends JacobObject implements Runnable {
+    static class ReliablePrinterProcess extends Process {
         private Callback<String, Synch> in;
 
         @JsonCreator
@@ -88,7 +89,7 @@ public class HelloWorld extends JacobObject implements Runnable {
         }
     }
 
-    static class ReliableStringEmitterProcess extends JacobObject implements Runnable {
+    static class ReliableStringEmitterProcess extends Process {
         private String str;
         private Callback<String, Synch> to;
 
@@ -118,7 +119,7 @@ public class HelloWorld extends JacobObject implements Runnable {
         }
     }
 
-    static class PrinterProcess extends JacobObject implements Runnable {
+    static class PrinterProcess extends Process {
         private Val _in;
 
         @JsonCreator
@@ -137,7 +138,7 @@ public class HelloWorld extends JacobObject implements Runnable {
         }
     }
 
-    static class StringEmitterProcess extends JacobObject implements Runnable {
+    static class StringEmitterProcess extends Process {
         private String str;
         private Val to;
 
@@ -152,7 +153,7 @@ public class HelloWorld extends JacobObject implements Runnable {
         }
     }
 
-    static class ForwarderProcess extends JacobObject implements Runnable {
+    static class ForwarderProcess extends Process {
         private Val in;
         private Val out;
 
@@ -265,7 +266,7 @@ public class HelloWorld extends JacobObject implements Runnable {
         }
     }
     
-    static class StringEmitterRunnable extends JacobObject implements Runnable {
+    static class StringEmitterRunnable extends Process {
         private String str;
         private ChannelRef to;
 
@@ -299,7 +300,7 @@ public class HelloWorld extends JacobObject implements Runnable {
 			return new SequenceItemEmitter(greetings[step], done, out);
         }
 
-		static class SequenceItemEmitter extends JacobObject implements Runnable {
+		static class SequenceItemEmitter extends Process {
 			private final String string;
 			private final Synch done;
 			private final Val out;

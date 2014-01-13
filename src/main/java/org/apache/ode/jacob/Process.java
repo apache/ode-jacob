@@ -25,10 +25,10 @@ import java.io.Serializable;
  * aspect of the process.
  */
 @SuppressWarnings("serial")
-public abstract class JacobObject implements Serializable {
+public abstract class Process implements Runnable, Serializable {
 
     public String toString() {
-        return "<JacobObject:" + getClass().getSimpleName() + ">";
+        return "<Process:" + getClass().getSimpleName() + ">";
     }
 
 }

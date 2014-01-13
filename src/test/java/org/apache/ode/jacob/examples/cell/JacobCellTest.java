@@ -18,18 +18,21 @@
  */
 package org.apache.ode.jacob.examples.cell;
 
-import static org.apache.ode.jacob.oo.ProcessUtil.receive;
-import static org.apache.ode.jacob.Jacob.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.Process;
 import org.apache.ode.jacob.oo.Val;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
 import org.apache.ode.jacob.vpu.JacobVPU;
+
+import static org.apache.ode.jacob.Jacob.instance;
+import static org.apache.ode.jacob.Jacob.newChannel;
+import static org.apache.ode.jacob.Jacob.object;
+import static org.apache.ode.jacob.oo.ProcessUtil.receive;
 
 
 public class JacobCellTest extends TestCase {
@@ -59,7 +62,7 @@ public class JacobCellTest extends TestCase {
     }
 
     @SuppressWarnings("serial")
-    static class CellTest1 extends JacobObject implements Runnable {
+    static class CellTest1 extends Process {
         public void run() {
             Cell cell = newChannel(Cell.class, "cell");
             Val ret = newChannel(Val.class, "val");

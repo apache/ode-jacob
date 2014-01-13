@@ -18,20 +18,24 @@
  */
 package org.apache.ode.jacob.examples.sequence;
 
-import static org.apache.ode.jacob.Jacob.*;
 
-import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.Process;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import static org.apache.ode.jacob.Jacob.instance;
+import static org.apache.ode.jacob.Jacob.newChannel;
+import static org.apache.ode.jacob.Jacob.object;
+
+
 /**
  * Abstract process that executes a number of steps sequentially.
  */
 @SuppressWarnings("serial")
-public abstract class Sequence extends JacobObject implements Runnable {
+public abstract class Sequence extends Process {
     private final SequenceData data = new SequenceData();
 
     /**

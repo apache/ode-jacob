@@ -18,13 +18,16 @@
  */
 package org.apache.ode.jacob.examples.eratosthenes;
 
-import static org.apache.ode.jacob.Jacob.*;
 
-import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.Process;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Synch;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
 import org.apache.ode.jacob.vpu.JacobVPU;
+
+import static org.apache.ode.jacob.Jacob.instance;
+import static org.apache.ode.jacob.Jacob.newChannel;
+import static org.apache.ode.jacob.Jacob.object;
 
 /**
  * Sieve of Eratosthenes prime number generator.
@@ -38,7 +41,7 @@ import org.apache.ode.jacob.vpu.JacobVPU;
  *
  * @author Maciej Szefler <a href="mailto:mbs@fivesight.com">mbs</a>
  */
-public class Sieve extends JacobObject implements Runnable {
+public class Sieve extends Process {
   private static final long serialVersionUID = -1303509567096202776L;
 
   private static int _cnt = 0;
@@ -60,7 +63,7 @@ public class Sieve extends JacobObject implements Runnable {
    *  Counter(out, n) := out.val(n) | Counter(out, n+1)
    * </em></pre>
    */
-  private static class Counter extends JacobObject implements Runnable {
+  private static class Counter extends Process {
     private static final long serialVersionUID = 4739323750438991003L;
 
     private NaturalNumberStream _out;
@@ -92,7 +95,7 @@ public class Sieve extends JacobObject implements Runnable {
    *
    *
    */
-  private static final class Head extends JacobObject implements Runnable {
+  private static final class Head extends Process {
     private static final long serialVersionUID = 1791641314141082728L;
 
     NaturalNumberStream _in;
@@ -121,7 +124,7 @@ public class Sieve extends JacobObject implements Runnable {
     }
   }
 
-  private static final class Print extends JacobObject implements Runnable {
+  private static final class Print extends Process {
     private static final long serialVersionUID = -3134193737519487672L;
 
     private NaturalNumberStream _in;
@@ -148,7 +151,7 @@ public class Sieve extends JacobObject implements Runnable {
    *     ! in ? [val(n)={ if(n mod prime <> 0) out.val(n) }
    * </em></prime>
    */
-  private static class PrimeFilter extends JacobObject implements Runnable {
+  private static class PrimeFilter extends Process {
     private static final long serialVersionUID = 1569523200422202448L;
 
     private int _prime;

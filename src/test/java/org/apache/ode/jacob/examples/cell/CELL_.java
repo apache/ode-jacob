@@ -18,7 +18,7 @@
  */
 package org.apache.ode.jacob.examples.cell;
 
-import org.apache.ode.jacob.JacobObject;
+import org.apache.ode.jacob.Process;
 import org.apache.ode.jacob.oo.ReceiveProcess;
 import org.apache.ode.jacob.oo.Val;
 
@@ -31,7 +31,7 @@ import static org.apache.ode.jacob.Jacob.*;
  * Cell(self, val) = self ? [ read(r) = { Cell(self, val) | r ! val(val) } & write(newVal) = { Cell(self, newVal) } ]
  * </code>
  */
-public class CELL_<T> extends JacobObject implements Runnable {
+public class CELL_<T> extends Process {
     private static final long serialVersionUID = 1550566086202728251L;
 
     private Cell _self;
@@ -43,7 +43,8 @@ public class CELL_<T> extends JacobObject implements Runnable {
         _val = val;
     }
 
-    public void run() {
+    @SuppressWarnings("serial")
+	public void run() {
         // INSTANTIATION{Cell(run,val)}
         // ==> run ? [ read(r)={...} & write(newVal)={...} ]
         object(new ReceiveProcess().setChannel(_self).setReceiver(new Cell() {
