@@ -72,7 +72,6 @@ public interface JacobThread {
     public void sendMessage(Message message);
 
     public void subscribe(boolean replicate, ChannelRef channel, MessageListener methodList) throws IllegalArgumentException;
-    public void subscribe(boolean replicate, ChannelRef channel, MessageListener[] methodList) throws IllegalArgumentException;
 
     // OO oriented API
     
@@ -129,32 +128,5 @@ public interface JacobThread {
      *             if the method list does not match the channel kind
      */
     public void object(boolean replicate, ChannelListener methodList) throws IllegalArgumentException;
-
-    /**
-     * <p>
-     * Receive a message on a channel, allowing for possible replication. The
-     * effect of this method is to register a list of listeners (the method list) for a
-     * message on the channel to consume either one or an infinite number of
-     * messages on the channel (depending on the value of the
-     * <code>replicate</code> argument.
-     * </p>
-     *
-     * <p>
-     * With respect to process terms, the Java expression <code>object(false, x,
-     * ChannelListener)</code>
-     * corresponds to the process term <code> x ? { ChannelListener[] }</code>;
-     * if in the same expression the initial <code>replicate</code> parameter
-     * were instead set to <code>true</code>, corresponding term would be
-     * <code> ! x ? { ChannelListener }</code>.
-     * </p>
-     *
-     * @param replicate
-     *            if set the a replication operator is present
-     * @param methodList
-     *            object representation of the method list
-     * @throws IllegalArgumentException
-     *             if the method list does not match the channel kind
-     */
-    public void object(boolean reaplicate, ChannelListener[] methodLists) throws IllegalArgumentException;
 
 }

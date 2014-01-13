@@ -337,32 +337,6 @@ public final class JacobVPU {
             return new ChannelRef(_executionQueue.consumeExport(channelId));
         }
         
-        public void object(boolean replicate, ChannelListener[] ml) {
-            if (LOG.isTraceEnabled()) {
-                StringBuffer msg = new StringBuffer();
-                msg.append(_cycle);
-                msg.append(": ");
-                for (int i = 0; i < ml.length; ++i) {
-                    if (i != 0) msg.append(" + ");
-                    if (ml[i] instanceof ReceiveProcess) {
-                        ReceiveProcess rp = (ReceiveProcess)ml[i];
-                        msg.append(rp.getChannel());
-                        msg.append(" ? ");
-                        msg.append(rp.toString());
-                    }
-                }
-                LOG.debug(msg.toString());
-            }
-
-            _statistics.numContinuations++;
-
-            CommGroup grp = new CommGroup(replicate);
-            for (int i = 0; i < ml.length; ++i) {
-                addCommChannel(grp, ml[i]);
-            }
-            _executionQueue.add(grp);
-        }
-        
         public void object(boolean replicate, ChannelListener ml) {
             if (LOG.isTraceEnabled()) {
                 StringBuffer msg = new StringBuffer();
@@ -402,31 +376,6 @@ public final class JacobVPU {
             CommRecv recv = new CommRecv(channel.getEndpoint(CommChannel.class), listener);
             grp.add(recv);
 
-            _executionQueue.add(grp);
-        }
-
-        public void subscribe(boolean replicate, ChannelRef channel, MessageListener listeners[]) {
-            assert channel.getType() == ChannelRef.Type.CHANNEL;
-            if (LOG.isTraceEnabled()) {
-                StringBuffer msg = new StringBuffer();
-                msg.append(_cycle);
-                msg.append(": ");
-                for (int i = 0; i < listeners.length; ++i) {
-                    if (i != 0) msg.append(" + ");
-                    msg.append(channel);
-                    msg.append(" ? ");
-                    msg.append(listeners[i].toString());
-                }
-                LOG.debug(msg.toString());
-            }
-
-            _statistics.numContinuations++;
-
-            CommGroup grp = new CommGroup(replicate);
-            for (int i = 0; i < listeners.length; ++i) {
-                CommRecv recv = new CommRecv(channel.getEndpoint(CommChannel.class), listeners[i]);
-                grp.add(recv);
-            }
             _executionQueue.add(grp);
         }
 
