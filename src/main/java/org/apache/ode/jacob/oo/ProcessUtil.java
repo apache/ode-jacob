@@ -37,7 +37,7 @@ public final class ProcessUtil {
     	    + channel == null ? "<null>" : channel.getClass().toString());
     }
     
-    public static CompositeProcess compose(ReceiveProcess process) {
+    public static CompositeProcess compose(ChannelListener process) {
         CompositeProcess result = new CompositeProcess();
         return result.or(process);
     }

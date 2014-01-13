@@ -35,50 +35,82 @@ import org.junit.Test;
 
 public class JacobChannelsTest {
 
-	@Test
-	public void testMultipleSameTypeChannels() {
+    @Test
+    public void testMultipleSameTypeChannels() {
         JacobVPU vpu = new JacobVPU();
         vpu.setContext(new ExecutionQueueImpl());
 
-		Channel one = vpu.newChannel(Val.class, "");
-		Channel two = vpu.newChannel(Val.class, "");
-		CommChannel back1 = ChannelFactory.getBackend(one);
-		CommChannel back2 = ChannelFactory.getBackend(two);
-		Assert.assertEquals(back1.getType(), back2.getType());
-		Assert.assertNotEquals(back1.getId(), back2.getId());
-	}
+        Channel one = vpu.newChannel(Val.class, "");
+        Channel two = vpu.newChannel(Val.class, "");
+        CommChannel back1 = ChannelFactory.getBackend(one);
+        CommChannel back2 = ChannelFactory.getBackend(two);
+        Assert.assertEquals(back1.getType(), back2.getType());
+        Assert.assertNotEquals(back1.getId(), back2.getId());
+    }
 
-	@Test
-	@SuppressWarnings("serial")
-	public void testMultipleReceiversSameChannel() {
+    @Test
+    @SuppressWarnings("serial")
+    public void testMultipleReceiversSameChannel() {
         final JacobVPU vpu = new JacobVPU();
         vpu.setContext(new ExecutionQueueImpl());
-        
+
         final List<String> result = new ArrayList<String>();
         vpu.inject(new Runnable() {
-			public void run() {
-				Val v = (Val)vpu.newChannel(Val.class, "");
-		        object(receive(v, new Val() {
-		            public void val(Object retVal) {
-		            	result.add("Hello " + retVal);
-		            }
-		        }));
-		        object(receive(v, new Val() {
-		            public void val(Object retVal) {
-		            	result.add("Bonjour " + retVal);
-		            }
-		        }));
-		        
-		        v.val("Hadrian");
-		        
-			}
+            public void run() {
+                Val v = (Val)vpu.newChannel(Val.class, "");
+                object(receive(v, new Val() {
+                    public void val(Object retVal) {
+                        result.add("Hello " + retVal);
+                    }
+                }));
+                object(receive(v, new Val() {
+                    public void val(Object retVal) {
+                        result.add("Bonjour " + retVal);
+                    }
+                }));
+
+                v.val("Hadrian");
+            }
         });
 
         while (vpu.execute()) {
-        	// keep doing it...
+            // keep doing it...
         }
         // TODO: although it should probably be two
         //  not really clear what pi calculus says about shared channels
-		Assert.assertEquals(1, result.size());
-	}
+        Assert.assertEquals(1, result.size());
+    }
+
+    @Test
+    @SuppressWarnings("serial")
+    public void testCompositeReceiver() {
+        final JacobVPU vpu = new JacobVPU();
+        vpu.setContext(new ExecutionQueueImpl());
+
+        final List<String> result = new ArrayList<String>();
+        vpu.inject(new Runnable() {
+            public void run() {
+                Val v = (Val)vpu.newChannel(Val.class, "");
+                object(ProcessUtil.compose(receive(v, new Val() {
+                    public void val(Object retVal) {
+                        result.add("Hello " + retVal);
+                    }
+                })).or(receive(v, new Val() {
+                    public void val(Object retVal) {
+                        result.add("Bonjour " + retVal);
+                    }
+                })));
+
+                v.val("Hadrian");
+            }
+        });
+
+        while (vpu.execute()) {
+            // keep doing it...
+        }
+        // TODO: although it should probably be two
+        //  not really clear what pi calculus says about shared channels
+        Assert.assertEquals(1, result.size());
+    }
+
 }
