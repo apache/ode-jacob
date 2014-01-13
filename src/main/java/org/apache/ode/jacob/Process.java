@@ -18,13 +18,11 @@
  */
 package org.apache.ode.jacob;
 
-import java.io.Serializable;
-
 
 /**
  * TODO: Document...
+ * Abstraction representing a Pi process, either a Runnable (e.g. P, Q) or a consumer (e.g. ?in(x)).
  */
 
-public interface MessageListener extends Process, Serializable {
-	void onMessage(Message msg);
+public interface Process {
 }
