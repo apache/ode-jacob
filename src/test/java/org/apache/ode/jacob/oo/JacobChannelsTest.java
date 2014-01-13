@@ -19,6 +19,12 @@
 package org.apache.ode.jacob.oo;
 
 
+import static org.apache.ode.jacob.Jacob.object;
+import static org.apache.ode.jacob.oo.ProcessUtil.receive;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.vpu.ChannelFactory;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
@@ -32,8 +38,7 @@ public class JacobChannelsTest {
 	@Test
 	public void testMultipleSameTypeChannels() {
         JacobVPU vpu = new JacobVPU();
-        ExecutionQueueImpl queue = new ExecutionQueueImpl();
-        vpu.setContext(queue);
+        vpu.setContext(new ExecutionQueueImpl());
 
 		Channel one = vpu.newChannel(Val.class, "");
 		Channel two = vpu.newChannel(Val.class, "");
@@ -43,4 +48,37 @@ public class JacobChannelsTest {
 		Assert.assertNotEquals(back1.getId(), back2.getId());
 	}
 
+	@Test
+	@SuppressWarnings("serial")
+	public void testMultipleReceiversSameChannel() {
+        final JacobVPU vpu = new JacobVPU();
+        vpu.setContext(new ExecutionQueueImpl());
+        
+        final List<String> result = new ArrayList<String>();
+        vpu.inject(new Runnable() {
+			public void run() {
+				Val v = (Val)vpu.newChannel(Val.class, "");
+		        object(receive(v, new Val() {
+		            public void val(Object retVal) {
+		            	result.add("Hello " + retVal);
+		            }
+		        }));
+		        object(receive(v, new Val() {
+		            public void val(Object retVal) {
+		            	result.add("Bonjour " + retVal);
+		            }
+		        }));
+		        
+		        v.val("Hadrian");
+		        
+			}
+        });
+
+        while (vpu.execute()) {
+        	// keep doing it...
+        }
+        // TODO: although it should probably be two
+        //  not really clear what pi calculus says about shared channels
+		Assert.assertEquals(1, result.size());
+	}
 }

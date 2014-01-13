@@ -153,27 +153,18 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             Comm comm = i.next();
             ChannelFrame chnlFrame = findChannelFrame(comm.getChannel().getId());
             if (comm instanceof CommSend) {
-                if (chnlFrame.replicatedSend) {
-                    // TODO: JACOB "bad-process" ex
-                    throw new IllegalStateException("Send attempted on channel containing replicated send! Channel= "
-                            + comm.getChannel());
-                }
-                if (group.isReplicated()) {
-                    chnlFrame.replicatedSend = true;
-                }
-
                 CommSend commSend = (CommSend) comm;
                 MessageFrame mframe = new MessageFrame(commGroupFrame, chnlFrame, commSend.getMessage());
                 commGroupFrame.commFrames.add(mframe);
                 chnlFrame.msgFrames.add(mframe);
             } else if (comm instanceof CommRecv) {
-                if (chnlFrame.replicatedRecv) {
+                if (chnlFrame.replicated) {
                     // TODO: JACOB "bad-process" ex
                     throw new IllegalStateException(
                             "Receive attempted on channel containing replicated receive! Channel= " + comm.getChannel());
                 }
                 if (group.isReplicated()) {
-                    chnlFrame.replicatedRecv = true;
+                    chnlFrame.replicated = true;
                 }
                 CommRecv commRecv = (CommRecv) comm;
                 ListenerFrame oframe = new ListenerFrame(commGroupFrame, chnlFrame, commRecv.getListener());
@@ -438,9 +429,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
         /** External Reference Count */
         int refCount;
 
-        boolean replicatedSend;
-
-        boolean replicatedRecv;
+        boolean replicated;
 
         Set<ListenerFrame> objFrames = new LinkedHashSet<ListenerFrame>();
 
@@ -479,8 +468,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             id = in.readInt();
             description = in.readUTF();
             refCount = in.readInt();
-            replicatedSend = in.readBoolean();
-            replicatedRecv = in.readBoolean();
+            replicated = in.readBoolean();
             int cnt = in.readInt();
             for (int i = 0; i < cnt; ++i) {
                 objFrames.add((ListenerFrame) in.readObject());
@@ -496,8 +484,7 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             out.writeInt(id);
             out.writeUTF(description == null ? "" : description);
             out.writeInt(refCount);
-            out.writeBoolean(replicatedSend);
-            out.writeBoolean(replicatedRecv);
+            out.writeBoolean(replicated);
             out.writeInt(objFrames.size());
             for (Iterator<ListenerFrame> i = objFrames.iterator(); i.hasNext();) {
                 out.writeObject(i.next());
@@ -519,12 +506,9 @@ public class ExecutionQueueImpl implements ExecutionQueue {
             buf.append(refCount);
             buf.append(", msgs=");
             buf.append(msgFrames.size());
-            if (replicatedSend) {
-                buf.append("R");
-            }
             buf.append(", objs=");
             buf.append(objFrames.size());
-            if (replicatedRecv) {
+            if (replicated) {
                 buf.append("R");
             }
             buf.append("}");
