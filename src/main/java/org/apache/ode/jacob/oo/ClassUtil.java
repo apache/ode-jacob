@@ -53,11 +53,11 @@ public final class ClassUtil {
     }
 
     public static Set<Method> runMethodSet() {
-    	return RUN_METHOD_SET;
+        return RUN_METHOD_SET;
     }
 
     public static Message createMessage(Runnable target, String action, Object[] args, Channel replyTo) {
-    	Message message = new Message();
+        Message message = new Message();
         message.setTo(new ChannelRef(target));
         message.setReplyTo(replyTo == null ? null : new ChannelRef(replyTo));
         message.setAction(action);
@@ -75,32 +75,32 @@ public final class ClassUtil {
     }
 
     public static String getActionForMethod(Method channelMethod) {
-    	if (channelMethod == null) {
-    		return null;
-    	}
-    	MessageHandler handler = channelMethod.getAnnotation(MessageHandler.class);
-    	if (handler != null) {
-    		return handler.value();
-    	}
-    	Class<?> clazz = channelMethod.getDeclaringClass();
-    	if (Runnable.class.isAssignableFrom(clazz) 
-    		&& channelMethod.getName() == "run"
-    		&& channelMethod.getParameterTypes().length == 0) {
-    		return RUN_METHOD_ACTION;
-    	}
-    	if (!Channel.class.isAssignableFrom(clazz)) {
-    		LOG.trace("Action '{}' can only be defined for a Channel extension", channelMethod.getName());
-    		return null;
-    	}
-		LOG.trace("Probing Channel class '{}' for declaration of method '{}'", clazz.getName(), channelMethod.getName());
-		for (Class<?> c : clazz.getInterfaces()) {
-			String action = getChannelMethodAction(c, channelMethod);
-			if (action != null) {
-				return action;
-			}
-		}
-		// ... if clazz is a Channel interface itself 
-    	return getChannelMethodAction(clazz, channelMethod);
+        if (channelMethod == null) {
+            return null;
+        }
+        MessageHandler handler = channelMethod.getAnnotation(MessageHandler.class);
+        if (handler != null) {
+            return handler.value();
+        }
+        Class<?> clazz = channelMethod.getDeclaringClass();
+        if (Runnable.class.isAssignableFrom(clazz) 
+            && channelMethod.getName() == "run"
+            && channelMethod.getParameterTypes().length == 0) {
+            return RUN_METHOD_ACTION;
+        }
+        if (!Channel.class.isAssignableFrom(clazz)) {
+            LOG.trace("Action '{}' can only be defined for a Channel extension", channelMethod.getName());
+            return null;
+        }
+        LOG.trace("Probing Channel class '{}' for declaration of method '{}'", clazz.getName(), channelMethod.getName());
+        for (Class<?> c : clazz.getInterfaces()) {
+            String action = getChannelMethodAction(c, channelMethod);
+            if (action != null) {
+                return action;
+            }
+        }
+        // ... if clazz is a Channel interface itself 
+        return getChannelMethodAction(clazz, channelMethod);
     }
 
     /**
@@ -112,32 +112,32 @@ public final class ClassUtil {
      * following a convention similar to javadoc.
      */
     private static String getChannelMethodAction(Class<?> clazz, Method method) {
-		if (Channel.class.isAssignableFrom(clazz)) {
-			try {
-				Method m = clazz.getMethod(method.getName(), method.getParameterTypes());
-    	    	return m.getDeclaringClass().getName() + "#" + m.getName();
-			} catch (SecurityException e) {		// ignore
-			} catch (NoSuchMethodException e) {	// ignore
-			}
-		}
-		return null;
+        if (Channel.class.isAssignableFrom(clazz)) {
+            try {
+                Method m = clazz.getMethod(method.getName(), method.getParameterTypes());
+                return m.getDeclaringClass().getName() + "#" + m.getName();
+            } catch (SecurityException e) {        // ignore
+            } catch (NoSuchMethodException e) {    // ignore
+            }
+        }
+        return null;
     }
 
     public static Expression findActionMethod(final Set<Method> implementedMethods) {
-    	return new Expression() {
-			@SuppressWarnings("unchecked")
-			public <T> T evaluate(Message message, Class<T> type) {
-				String action = message.getAction();
-				if (Method.class.equals(type) && action != null) {
-					for (Method m : implementedMethods) {
-						if (action.equals(ClassUtil.getActionForMethod(m))) {
-							return (T)m;
-						}
-					}
-				}
-				return null;
-			}
-    	};
+        return new Expression() {
+            @SuppressWarnings("unchecked")
+            public <T> T evaluate(Message message, Class<T> type) {
+                String action = message.getAction();
+                if (Method.class.equals(type) && action != null) {
+                    for (Method m : implementedMethods) {
+                        if (action.equals(ClassUtil.getActionForMethod(m))) {
+                            return (T)m;
+                        }
+                    }
+                }
+                return null;
+            }
+        };
     }
 
 

@@ -35,73 +35,73 @@ public class Message implements Serializable {
     private static final AtomicLong idGen = new AtomicLong();
     
     private long id;
-    private ChannelRef to;	
+    private ChannelRef to;    
     private ChannelRef replyTo;
     private String action;
     private Map<String, Object> headers;
-	private Object body;
+    private Object body;
 
-	public Message() {
-		id = idGen.incrementAndGet();
-		// TODO: always allocating headers may not be a good idea
-		//  checking for non-null headers in the getters below is 
-		//  not great either; should look into a better option later
-		//  after finishing pi-calculus refactoring and running some
-		//  perf tests
-		headers = new ConcurrentHashMap<String, Object>();
-	}
+    public Message() {
+        id = idGen.incrementAndGet();
+        // TODO: always allocating headers may not be a good idea
+        //  checking for non-null headers in the getters below is 
+        //  not great either; should look into a better option later
+        //  after finishing pi-calculus refactoring and running some
+        //  perf tests
+        headers = new ConcurrentHashMap<String, Object>();
+    }
 
-	public Message(ChannelRef to, ChannelRef replyTo, String action) {
-		this();
-		this.to = to;
-		this.replyTo = replyTo;
-		this.action = action;
-	}
+    public Message(ChannelRef to, ChannelRef replyTo, String action) {
+        this();
+        this.to = to;
+        this.replyTo = replyTo;
+        this.action = action;
+    }
 
-	// TODO: add any other convenience methods like addHeader, removeHeader? 
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
-	}
-	public ChannelRef getTo() {
-		return to;
-	}
-	public void setTo(ChannelRef to) {
-		this.to = to;
-	}
-	public ChannelRef getReplyTo() {
-		return replyTo;
-	}
-	public void setReplyTo(ChannelRef replyTo) {
-		this.replyTo = replyTo;
-	}
-	public String getAction() {
-		return action;
-	}
-	public void setAction(String action) {
-		this.action = action;
-	}
+    // TODO: add any other convenience methods like addHeader, removeHeader? 
+    public long getId() {
+        return id;
+    }
+    public void setId(long id) {
+        this.id = id;
+    }
+    public ChannelRef getTo() {
+        return to;
+    }
+    public void setTo(ChannelRef to) {
+        this.to = to;
+    }
+    public ChannelRef getReplyTo() {
+        return replyTo;
+    }
+    public void setReplyTo(ChannelRef replyTo) {
+        this.replyTo = replyTo;
+    }
+    public String getAction() {
+        return action;
+    }
+    public void setAction(String action) {
+        this.action = action;
+    }
 
-	public Map<String, Object> getHeaders() {
-		return headers;
-	}
-	public void setHeaders(Map<String, Object> headers) {
-		this.headers = headers;
-	}
-	public Object getBody() {
-		return body;
-	}
-	public void setBody(Object body) {
-		this.body = body;
-	}
+    public Map<String, Object> getHeaders() {
+        return headers;
+    }
+    public void setHeaders(Map<String, Object> headers) {
+        this.headers = headers;
+    }
+    public Object getBody() {
+        return body;
+    }
+    public void setBody(Object body) {
+        this.body = body;
+    }
 
-	public boolean containsHeader(String header) {
-		return headers.containsKey(header);
-	}
-	
-	
+    public boolean containsHeader(String header) {
+        return headers.containsKey(header);
+    }
+    
+    
     public String toString() {
         return "Message [id=" + id + ", "
                 + (to != null ? "to=" + to + ", " : "")
@@ -132,16 +132,16 @@ public class Message implements Serializable {
     }
 
     public static Message copyFrom(Message message) {
-	    Message result = new Message();
-	    
-	    result.setId(idGen.incrementAndGet());
-	    
-	    result.setAction(message.getAction());
-	    result.setBody(message.getBody());
-	    result.setHeaders(message.getHeaders());
-	    result.setTo(message.getTo());
-	    result.setReplyTo(message.getReplyTo());
-	    
-	    return result;
-	}
+        Message result = new Message();
+        
+        result.setId(idGen.incrementAndGet());
+        
+        result.setAction(message.getAction());
+        result.setBody(message.getBody());
+        result.setHeaders(message.getHeaders());
+        result.setTo(message.getTo());
+        result.setReplyTo(message.getReplyTo());
+        
+        return result;
+    }
 }

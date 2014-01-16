@@ -40,10 +40,10 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
  */
 public class MessageDeserializer extends StdDeserializer<Message> {
 
-	private static final long serialVersionUID = 1L;
-	private TypeReference<HashMap<String,Object>> mapTypeRef = new TypeReference<HashMap<String, Object>>() {}; 
+    private static final long serialVersionUID = 1L;
+    private TypeReference<HashMap<String,Object>> mapTypeRef = new TypeReference<HashMap<String, Object>>() {}; 
 
-	protected MessageDeserializer() {
+    protected MessageDeserializer() {
         super(Message.class);
     }
 

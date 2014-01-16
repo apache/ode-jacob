@@ -36,9 +36,9 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
  */
 public class ChannelRefDeserializer extends StdDeserializer<ChannelRef> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	protected ChannelRefDeserializer() {
+    protected ChannelRefDeserializer() {
         super(ChannelRef.class);
     }
 

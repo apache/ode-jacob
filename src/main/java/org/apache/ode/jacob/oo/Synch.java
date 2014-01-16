@@ -28,6 +28,6 @@ package org.apache.ode.jacob.oo;
 
 public interface Synch extends Channel {
 
-	public void ret();
+    public void ret();
 
 }

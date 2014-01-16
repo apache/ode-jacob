@@ -24,6 +24,6 @@ package org.apache.ode.jacob.oo;
  */
 public interface Val extends Channel {
 
-	public void val(Object retVal);
+    public void val(Object retVal);
 
 }

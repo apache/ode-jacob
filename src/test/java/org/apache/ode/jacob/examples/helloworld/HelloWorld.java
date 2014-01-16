@@ -285,39 +285,39 @@ public class HelloWorld extends RunnableProcess {
     
     static class HWSequence extends Sequence {
 
-		private final String[] greetings;
-		private final Val out;
+        private final String[] greetings;
+        private final Val out;
 
-		@JsonCreator
-		public HWSequence(@JsonProperty("greetings") String[] greetings, @JsonProperty("out") Val out, @JsonProperty("done") Synch done) {
-			super(greetings.length, done);
-			this.greetings = greetings;
-			this.out = out;
-		}
-
-		@Override
-		protected RunnableProcess doStep(int step, Synch done) {
-			return new SequenceItemEmitter(greetings[step], done, out);
+        @JsonCreator
+        public HWSequence(@JsonProperty("greetings") String[] greetings, @JsonProperty("out") Val out, @JsonProperty("done") Synch done) {
+            super(greetings.length, done);
+            this.greetings = greetings;
+            this.out = out;
         }
 
-		static class SequenceItemEmitter extends RunnableProcess {
-			private final String string;
-			private final Synch done;
-			private final Val out;
+        @Override
+        protected RunnableProcess doStep(int step, Synch done) {
+            return new SequenceItemEmitter(greetings[step], done, out);
+        }
 
-			@JsonCreator
-			public SequenceItemEmitter(@JsonProperty("string") String string, @JsonProperty("done") Synch done, @JsonProperty("out") Val out) {
-				this.string = string;
-				this.done = done;
-				this.out = out;
-			}
+        static class SequenceItemEmitter extends RunnableProcess {
+            private final String string;
+            private final Synch done;
+            private final Val out;
 
-			@Override
-			public void run() {
-				instance(new StringEmitterProcess(string, out));
-	            done.ret();
-			}
-	    }
+            @JsonCreator
+            public SequenceItemEmitter(@JsonProperty("string") String string, @JsonProperty("done") Synch done, @JsonProperty("out") Val out) {
+                this.string = string;
+                this.done = done;
+                this.out = out;
+            }
+
+            @Override
+            public void run() {
+                instance(new StringEmitterProcess(string, out));
+                done.ret();
+            }
+        }
     }
     
 
@@ -329,8 +329,8 @@ public class HelloWorld extends RunnableProcess {
         calculusHelloWorld();
     }
 
-	@SuppressWarnings("unchecked")
-	public static void main(String args[]) throws Exception {
+    @SuppressWarnings("unchecked")
+    public static void main(String args[]) throws Exception {
         // enable logging
         // BasicConfigurator.configure();
         List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());

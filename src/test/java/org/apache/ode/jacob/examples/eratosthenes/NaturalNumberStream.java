@@ -32,6 +32,6 @@ import org.apache.ode.jacob.oo.Synch;
  */
 public interface NaturalNumberStream extends Channel {
 
-	public void val(int n, Synch ret);
+    public void val(int n, Synch ret);
 
 }

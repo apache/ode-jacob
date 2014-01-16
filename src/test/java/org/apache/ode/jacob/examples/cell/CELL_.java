@@ -44,7 +44,7 @@ public class CELL_<T> extends RunnableProcess {
     }
 
     @SuppressWarnings("serial")
-	public void run() {
+    public void run() {
         // INSTANTIATION{Cell(run,val)}
         // ==> run ? [ read(r)={...} & write(newVal)={...} ]
         object(new ReceiveProcess().setChannel(_self).setReceiver(new Cell() {

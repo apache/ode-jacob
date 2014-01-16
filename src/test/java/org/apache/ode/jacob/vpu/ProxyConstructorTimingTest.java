@@ -102,18 +102,18 @@ public class ProxyConstructorTimingTest extends TestCase {
     }
     
     public interface Greeter extends Channel {
-    	String hello(String name);
+        String hello(String name);
     }
     
     @SuppressWarnings("serial")
-	public class GreeterImpl implements Greeter {
+    public class GreeterImpl implements Greeter {
         public String hello(String name) {
             return "Hello " + name;
         }
     }
 
     @SuppressWarnings("serial")
-	public class GreeterImpl2 implements Greeter {
+    public class GreeterImpl2 implements Greeter {
         public String hello(String name) {
             return "";
         }

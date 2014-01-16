@@ -36,5 +36,5 @@ import java.lang.annotation.Target;
 @Documented
 @Target({ElementType.METHOD})
 public @interface MessageHandler {
-	String value();
+    String value();
 }

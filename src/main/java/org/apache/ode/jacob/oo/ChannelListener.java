@@ -33,20 +33,20 @@ import org.apache.ode.jacob.MessageListener;
 @SuppressWarnings("serial")
 public abstract class ChannelListener implements MessageListener {
 
-	public void onMessage(Message msg) {
-		Method action = ClassUtil.findActionMethod(getImplementedMethods()).evaluate(msg, Method.class);
-		try {
-			if (action != null && this instanceof ReceiveProcess) {
-			    action.invoke(((ReceiveProcess)this).getReceiver(), (Object[])msg.getBody());
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public Set<Method> getImplementedMethods() {
-	    return null;
-	}
+    public void onMessage(Message msg) {
+        Method action = ClassUtil.findActionMethod(getImplementedMethods()).evaluate(msg, Method.class);
+        try {
+            if (action != null && this instanceof ReceiveProcess) {
+                action.invoke(((ReceiveProcess)this).getReceiver(), (Object[])msg.getBody());
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    public Set<Method> getImplementedMethods() {
+        return null;
+    }
 
 }

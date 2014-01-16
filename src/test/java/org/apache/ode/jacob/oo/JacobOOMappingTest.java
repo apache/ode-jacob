@@ -27,43 +27,43 @@ import org.junit.Test;
 
 public class JacobOOMappingTest {
 
-	@Test
-	public void testProcessAction() {
-		String action = ClassUtil.getActionForMethod(methodOf(TestProcess.class, "run"));
-		Assert.assertEquals("java.lang.Runnable#run", action);
-	}
+    @Test
+    public void testProcessAction() {
+        String action = ClassUtil.getActionForMethod(methodOf(TestProcess.class, "run"));
+        Assert.assertEquals("java.lang.Runnable#run", action);
+    }
 
 
-	@Test
-	public void testDefaultChannelAction() {
-		String action = ClassUtil.getActionForMethod(methodOf(TestChannel.class, "one"));
-		Assert.assertEquals("org.apache.ode.jacob.oo.JacobOOMappingTest$TestChannel#one", action);
-	}
+    @Test
+    public void testDefaultChannelAction() {
+        String action = ClassUtil.getActionForMethod(methodOf(TestChannel.class, "one"));
+        Assert.assertEquals("org.apache.ode.jacob.oo.JacobOOMappingTest$TestChannel#one", action);
+    }
 
-	@Test
-	public void testCustomChannelAction() {
-		String action = ClassUtil.getActionForMethod(methodOf(TestChannel.class, "two"));
-		Assert.assertEquals("TestChannel-custom", action);
-	}
+    @Test
+    public void testCustomChannelAction() {
+        String action = ClassUtil.getActionForMethod(methodOf(TestChannel.class, "two"));
+        Assert.assertEquals("TestChannel-custom", action);
+    }
 
-	private final Method methodOf(Class<?> clazz, String name) {
+    private final Method methodOf(Class<?> clazz, String name) {
         try {
             return clazz.getMethod(name, new Class[]{});
         } catch (Exception e) {
-        	// ignore
+            // ignore
         }
         return null;
-	}
+    }
 
-	public static interface TestChannel extends Channel {
-		void one();
-		@MessageHandler("TestChannel-custom") void two();
-	}
+    public static interface TestChannel extends Channel {
+        void one();
+        @MessageHandler("TestChannel-custom") void two();
+    }
 
-	public static class TestProcess implements Runnable {
-		public void run() {
-			// do nothing
-		}
-	}
+    public static class TestProcess implements Runnable {
+        public void run() {
+            // do nothing
+        }
+    }
 
 }

@@ -54,10 +54,10 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(JacksonExecutionQueueImpl.class);
     
-	public JacksonExecutionQueueImpl() {
-		super(null);
-	}
-	
+    public JacksonExecutionQueueImpl() {
+        super(null);
+    }
+    
     public static class ExecutionQueueImplSerializer extends StdSerializer<JacksonExecutionQueueImpl> {
 
         private Set<Integer> usedChannels = new LinkedHashSet<Integer>();
@@ -94,7 +94,7 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
 
             usedChannels.clear();
             
-        	// write metadata
+            // write metadata
             jgen.writeNumberField("objIdCounter", value._objIdCounter);
             jgen.writeNumberField("currentCycle", value._currentCycle);
             
@@ -136,9 +136,9 @@ public class JacksonExecutionQueueImpl extends ExecutionQueueImpl {
 
     public static class ExecutionQueueImplDeserializer extends StdDeserializer<JacksonExecutionQueueImpl> {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		public ExecutionQueueImplDeserializer() {
+        public ExecutionQueueImplDeserializer() {
             super(JacksonExecutionQueueImpl.class);
         }
 

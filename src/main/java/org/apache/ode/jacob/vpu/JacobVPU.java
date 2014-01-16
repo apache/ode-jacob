@@ -301,7 +301,7 @@ public final class JacobVPU {
         }
 
         public Channel newChannel(Class<?> channelType, String description) {
-        	return JacobVPU.this.newChannel(channelType, description);
+            return JacobVPU.this.newChannel(channelType, description);
         }
 
         public ChannelRef newCommChannel(String description) {
@@ -422,7 +422,7 @@ public final class JacobVPU {
             LOG.trace(">> [{}] : {}", _cycle, _source);
 
             stackThread();
-        	CommChannel replyTo = message.getReplyTo() != null ? message.getReplyTo().getEndpoint(CommChannel.class) : null;
+            CommChannel replyTo = message.getReplyTo() != null ? message.getReplyTo().getEndpoint(CommChannel.class) : null;
 
             long ctime = System.currentTimeMillis();
             try {
@@ -447,7 +447,7 @@ public final class JacobVPU {
                     //XXX: All replys have the same Synch.ret() action 
                     sendMessage(ClassUtil.createMessage(replyTo, ClassUtil.SYNCH_RET_METHOD_ACTION, null, null));
                 }
-			} finally {
+            } finally {
                 ctime = System.currentTimeMillis() - ctime;
                 _statistics.totalClientTimeMs += ctime;
                 unstackThread();

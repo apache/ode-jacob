@@ -31,6 +31,6 @@ import org.apache.ode.jacob.oo.Synch;
  */
 public interface SynchPrint extends Channel {
 
-	public Synch print(String msg);
+    public Synch print(String msg);
 
 }

@@ -31,12 +31,12 @@ public interface Cell extends Channel {
      * Read the value of the cell.
      * @param replyTo channel to which the value of the cell is sent
      */
-	public void read(Val replyTo);
+    public void read(Val replyTo);
 
     /**
      * Write the value of the cell.
      * @param newVal new value of the cell
      */
-	public void write(Object newVal);
+    public void write(Object newVal);
 
 }
