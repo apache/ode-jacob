@@ -41,7 +41,7 @@ public class Jacob {
      *
      * @param concretion the concretion of a process template
      */
-    public static void instance(Runnable concretion) {
+    public static void instance(RunnableProcess concretion) {
         JacobVPU.activeJacobThread().instance(concretion);
     }
 

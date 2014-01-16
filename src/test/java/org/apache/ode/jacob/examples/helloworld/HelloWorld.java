@@ -296,7 +296,7 @@ public class HelloWorld extends RunnableProcess {
 		}
 
 		@Override
-		protected Runnable doStep(int step, Synch done) {
+		protected RunnableProcess doStep(int step, Synch done) {
 			return new SequenceItemEmitter(greetings[step], done, out);
         }
 

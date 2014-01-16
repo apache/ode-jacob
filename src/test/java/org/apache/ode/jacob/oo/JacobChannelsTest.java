@@ -25,6 +25,7 @@ import static org.apache.ode.jacob.oo.ProcessUtil.receive;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ode.jacob.RunnableProcess;
 import org.apache.ode.jacob.soup.CommChannel;
 import org.apache.ode.jacob.vpu.ChannelFactory;
 import org.apache.ode.jacob.vpu.ExecutionQueueImpl;
@@ -55,7 +56,7 @@ public class JacobChannelsTest {
         vpu.setContext(new ExecutionQueueImpl());
 
         final List<String> result = new ArrayList<String>();
-        vpu.inject(new Runnable() {
+        vpu.inject(new RunnableProcess() {
             public void run() {
                 Val v = (Val)vpu.newChannel(Val.class, "");
                 object(receive(v, new Val() {
@@ -88,7 +89,7 @@ public class JacobChannelsTest {
         vpu.setContext(new ExecutionQueueImpl());
 
         final List<String> result = new ArrayList<String>();
-        vpu.inject(new Runnable() {
+        vpu.inject(new RunnableProcess() {
             public void run() {
                 Val v = (Val)vpu.newChannel(Val.class, "");
                 object(ProcessUtil.compose(receive(v, new Val() {

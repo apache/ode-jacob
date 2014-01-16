@@ -27,6 +27,7 @@ import org.apache.ode.jacob.ChannelRef;
 import org.apache.ode.jacob.JacobThread;
 import org.apache.ode.jacob.Message;
 import org.apache.ode.jacob.MessageListener;
+import org.apache.ode.jacob.RunnableProcess;
 import org.apache.ode.jacob.oo.Channel;
 import org.apache.ode.jacob.oo.ChannelListener;
 import org.apache.ode.jacob.oo.ClassUtil;
@@ -175,7 +176,7 @@ public final class JacobVPU {
      * the injected process. This method is equivalent to the parallel operator,
      * but is intended to be used from outside of an active {@link JacobThread}.
      */
-    public void inject(Runnable concretion) {
+    public void inject(RunnableProcess concretion) {
         LOG.debug("injecting {}", concretion);
         addReaction(concretion, ClassUtil.RUN_METHOD_ACTION, new Class[]{},
             (LOG.isInfoEnabled() ? concretion.toString() : null));

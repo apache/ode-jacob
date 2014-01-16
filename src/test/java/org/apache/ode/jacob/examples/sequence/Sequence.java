@@ -68,7 +68,7 @@ public abstract class Sequence extends RunnableProcess {
      * @param done notification after step completion
      * @return runnable process
      */
-    protected abstract Runnable doStep(int step, Synch done);
+    protected abstract RunnableProcess doStep(int step, Synch done);
 
     public static class SequenceData {
         public int _steps;
