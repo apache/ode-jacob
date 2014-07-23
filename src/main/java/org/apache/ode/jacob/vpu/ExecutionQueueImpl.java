@@ -641,8 +641,9 @@ public class ExecutionQueueImpl implements ExecutionQueue {
          * @throws IOException
          */
         protected Object replaceObject(Object obj) throws IOException {
-            if (!Serializable.class.isAssignableFrom(obj.getClass())) {
-                throw new IllegalArgumentException("Cannot replace non Serializable instance of " + obj.getClass());
+            if (!Serializable.class.isAssignableFrom(obj.getClass()) &&
+                    !(_replacementMap != null && _replacementMap.isReplaceable(obj))) {
+                throw new IllegalArgumentException("Cannot replace non-serializable or non-replacable instance of " + obj.getClass());
             }
 
             if (obj instanceof org.apache.ode.jacob.oo.ChannelProxy) {
